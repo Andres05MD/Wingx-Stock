@@ -306,7 +306,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 **CEO:** Valeria Petaccia
 
-**Desarrollador:** Andrés Mariño
+**Desarrollador:** Andrés Morales
 - GitHub: [@Andres05MD](https://github.com/Andres05MD)
 - Proyecto: [Wingx-Stock](https://github.com/Andres05MD/Wingx-Stock)
 
@@ -320,11 +320,3 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 - [Vercel](https://vercel.com/) por el hosting gratuito
 
 ---
-
-<div align="center">
-
-**⭐ Si te ha gustado este proyecto, no olvides darle una estrella ⭐**
-
-Hecho con ❤️ por Valeria Petaccia & Andrés Mariño
-
-</div>
