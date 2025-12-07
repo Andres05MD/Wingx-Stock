@@ -309,14 +309,4 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 **Desarrollador:** Andrés Morales
 - GitHub: [@Andres05MD](https://github.com/Andres05MD)
 - Proyecto: [Wingx-Stock](https://github.com/Andres05MD/Wingx-Stock)
-
----
-
-## 🙏 Agradecimientos
-
-- [Firebase](https://firebase.google.com/) por el backend
-- [SweetAlert2](https://sweetalert2.github.io/) por las notificaciones
-- [Google Fonts](https://fonts.google.com/) por la tipografía Inter
-- [Vercel](https://vercel.com/) por el hosting gratuito
-
 ---
