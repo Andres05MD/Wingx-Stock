@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingx - Formulario</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+        "firebase/analytics": "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      }
+    }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 id="form-title">Nueva Prenda</h1>
+        <a href="dashboard.html" class="btn btn-secondary">Volver</a>
+    </header>
+
+    <div class="card">
+        <form id="garment-form">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="garment-name">Nombre de la Prenda</label>
+                    <input type="text" id="garment-name" placeholder="Ej. Camisa de Lino" required>
+                </div>
+                <div class="form-group">
+                    <label for="garment-size">Talla</label>
+                    <select id="garment-size">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="form-group">
+                    <label for="garment-price">Precio Venta ($)</label>
+                    <input type="number" id="garment-price" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="labor-cost">Mano de Obra ($)</label>
+                    <input type="number" id="labor-cost" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="transport-cost">Pasaje ($)</label>
+                    <input type="number" id="transport-cost" step="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="materials-section">
+                <label>Materiales</label>
+                <div class="material-row">
+                    <input type="text" id="material-name" placeholder="Nombre material (ej. Tela, Botones)">
+                    <input type="number" id="material-cost" step="0.01" placeholder="Costo">
+                    <button type="button" id="add-material-btn" class="btn btn-secondary">Agregar</button>
+                </div>
+                <div id="materials-list">
+                    <!-- Material items will appear here -->
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <button type="submit" class="btn">Guardar Prenda</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <p>CEO: Valeria Petaccia</p>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="../src/form.js"></script>
+</body>
+</html>
