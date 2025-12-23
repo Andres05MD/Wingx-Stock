@@ -154,6 +154,23 @@ async function handleFormSubmit(e) {
         return;
     }
 
+    // Formatear teléfono: Convertir 04XX... a +584XX...
+    if (clientData.phone) {
+        // Eliminar espacios y guiones
+        let cleanPhone = clientData.phone.replace(/[\s-]/g, '');
+
+        // Verificar si comienza con 0
+        if (cleanPhone.startsWith('0')) {
+            cleanPhone = '+58' + cleanPhone.substring(1);
+        }
+        // Si no tiene + y no empieza por 0, asumimos que le falta el prefijo completo si son 10 dígitos, o dejamos igual
+        else if (!cleanPhone.startsWith('+') && cleanPhone.length === 10) {
+            cleanPhone = '+58' + cleanPhone;
+        }
+
+        clientData.phone = cleanPhone;
+    }
+
     try {
         if (isEditing && id) {
             await updateClient(id, clientData);
