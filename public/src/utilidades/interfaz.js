@@ -11,12 +11,7 @@ export function renderMaterialsList(materials, removeCallback) {
     materialsList.innerHTML = '';
     materials.forEach(material => {
         const div = document.createElement('div');
-        div.className = 'material-row';
-        div.style.alignItems = 'center';
-        div.style.justifyContent = 'space-between';
-        div.style.background = '#fff';
-        div.style.padding = '0.5rem';
-        div.style.borderRadius = '4px';
+        div.className = 'material-list-item';
 
         div.innerHTML = `
             <span>${material.name} - $${material.cost.toFixed(2)}</span>
@@ -24,7 +19,7 @@ export function renderMaterialsList(materials, removeCallback) {
 
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'btn btn-danger';
+        btn.className = 'btn btn-danger btn-sm';
         btn.textContent = 'X';
         btn.onclick = () => removeCallback(material.id);
 

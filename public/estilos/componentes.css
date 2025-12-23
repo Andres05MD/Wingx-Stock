@@ -428,6 +428,41 @@ textarea:disabled {
     background: transparent;
 }
 
+/* New: Input row for adding materials */
+.material-input-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border-color);
+}
+
+/* New: Individual item in the saved list */
+.material-list-item {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.material-list-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateX(2px);
+}
+
 .material-item {
     background: white;
     border-radius: var(--radius);
@@ -524,6 +559,11 @@ textarea:disabled {
     }
 
     /* Stack materials vertically on mobile */
+    .material-input-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
     .material-item {
         flex-direction: column;
         align-items: flex-start;
