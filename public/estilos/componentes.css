@@ -382,8 +382,8 @@ textarea:disabled {
    MODAL & ALERTS
    ======================================== */
 .modal {
-    backdrop-filter: blur(4px);
-    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .modal-content {
@@ -435,10 +435,7 @@ textarea:disabled {
     gap: 1rem;
     align-items: center;
     margin-bottom: 1.5rem;
-    background: #f8fafc;
-    padding: 1.25rem;
-    border-radius: var(--radius-lg);
-    border: 1px dashed var(--border-color);
+    /* Removed background and border for cleaner look */
 }
 
 /* New: Individual item in the saved list */
