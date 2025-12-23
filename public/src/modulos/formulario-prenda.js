@@ -1,5 +1,5 @@
-import { saveGarment, updateGarment, getGarmentById } from './storage.js';
-import { renderMaterialsList, showAlert, showSuccessToast } from './ui.js';
+import { saveGarment, updateGarment, getGarmentById } from '../servicios/almacenamiento.js';
+import { renderMaterialsList, showAlert, showSuccessToast } from '../utilidades/interfaz.js';
 
 // Estado local
 let currentMaterials = [];
@@ -33,7 +33,7 @@ async function loadGarmentData(id) {
     const garment = await getGarmentById(id);
     if (!garment) {
         showAlert('error', 'Error', 'No se encontró la prenda.');
-        setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        setTimeout(() => window.location.href = 'prendas.html', 2000);
         return;
     }
 
@@ -112,7 +112,7 @@ async function handleFormSubmit(e) {
             showSuccessToast('¡Guardado!');
         }
 
-        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        setTimeout(() => window.location.href = 'prendas.html', 1500);
     } catch (error) {
         showAlert('error', 'Error', 'No se pudo guardar la prenda.');
         console.error(error);

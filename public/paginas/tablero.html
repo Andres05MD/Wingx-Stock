@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingx - Dashboard</title>
+    <link rel="stylesheet" href="../estilos/estilos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+        "firebase/analytics": "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      }
+    }
+    </script>
+</head>
+<body>
+
+<!-- Botón de menú móvil -->
+<button id="mobile-menu-btn" class="mobile-menu-btn">☰</button>
+
+<!-- Layout principal -->
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">W</div>
+                <span class="sidebar-logo-text">Wingx</span>
+            </div>
+            <button id="sidebar-toggle" class="sidebar-toggle">✕</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Principal</div>
+                <a href="tablero.html" class="sidebar-link">
+                    <span class="sidebar-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Gestión</div>
+                <a href="prendas.html" class="sidebar-link">
+                    <span class="sidebar-icon">👕</span>
+                    <span>Prendas</span>
+                </a>
+                <a href="inventario.html" class="sidebar-link">
+                    <span class="sidebar-icon">📦</span>
+                    <span>En Stock</span>
+                </a>
+                <a href="pedidos.html" class="sidebar-link">
+                    <span class="sidebar-icon">📋</span>
+                    <span>Pedidos</span>
+                </a>
+                <a href="clientes.html" class="sidebar-link">
+                    <span class="sidebar-icon">👥</span>
+                    <span>Clientes</span>
+                </a>
+                <a href="materiales.html" class="sidebar-link">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Materiales</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Overlay para móvil -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <div class="container">
+            <header>
+                <div>
+                    <h1>Wingx Stock</h1>
+                    <p>Dashboard de gestión</p>
+                </div>
+            </header>
+
+            <!-- Acciones Rápidas -->
+            <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Acciones Rápidas</h2>
+            <div class="shortcut-grid">
+                <a href="pedidos.html" class="shortcut-card">
+                    <span class="shortcut-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    </span>
+                    <span class="shortcut-label">Nuevo Pedido</span>
+                </a>
+                <a href="materiales.html" class="shortcut-card">
+                    <span class="shortcut-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    </span>
+                    <span class="shortcut-label">Agregar Material</span>
+                </a>
+                <a href="formulario-prenda.html" class="shortcut-card">
+                    <span class="shortcut-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.4a2 2 0 0 0-1.29-1.21 15 15 0 0 0-14.18 0 2 2 0 0 0-1.29 1.21L1 8.87a2 2 0 0 0 3.32 1.76l.16-.31h15l.16.31a2 2 0 0 0 3.32-1.76z"></path><path d="M3.77 8.35v11.65a2 2 0 0 0 2 2h12.44a2 2 0 0 0 2-2V8.35"></path></svg>
+                    </span>
+                    <span class="shortcut-label">Nueva Prenda</span>
+                </a>
+                <a href="inventario.html" class="shortcut-card">
+                    <span class="shortcut-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    </span>
+                    <span class="shortcut-label">Ver Stock</span>
+                </a>
+            </div>
+
+            <!-- Resumen Financiero y Operativo -->
+            <h2 style="margin: 2rem 0 1rem; color: var(--primary-color);">Resumen Financiero</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Ingresos Reales</p>
+                        <p class="stat-value" id="real-income">$0.00</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); color: white; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Por Cobrar</p>
+                        <p class="stat-value" id="pending-payments">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: white; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Pedidos Activos</p>
+                        <p class="stat-value" id="active-orders">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); color: white; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Stock Prendas</p>
+                        <p class="stat-value" id="total-garments">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem; color: var(--primary-color);">Pedidos Registrados</h2>
+            <div id="orders-container" class="garment-list">
+                <!-- Orders will be loaded here -->
+                <p style="text-align: center; color: #888;">Cargando pedidos...</p>
+            </div>
+
+            <footer>
+                <p>CEO: Valeria Petaccia</p>
+            </footer>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../src/utilidades/sidebar.js"></script>
+<script type="module" src="../src/modulos/tablero.js"></script>
+</body>
+</html>

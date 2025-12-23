@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingx - Listado de Prendas</title>
+    <link rel="stylesheet" href="../estilos/estilos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+        "firebase/analytics": "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      }
+    }
+    </script>
+</head>
+<body>
+
+<!-- Botón de menú móvil -->
+<button id="mobile-menu-btn" class="mobile-menu-btn">☰</button>
+
+<!-- Layout principal -->
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">W</div>
+                <span class="sidebar-logo-text">Wingx</span>
+            </div>
+            <button id="sidebar-toggle" class="sidebar-toggle">✕</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Principal</div>
+                <a href="tablero.html" class="sidebar-link">
+                    <span class="sidebar-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Gestión</div>
+                <a href="prendas.html" class="sidebar-link">
+                    <span class="sidebar-icon">👕</span>
+                    <span>Prendas</span>
+                </a>
+                <a href="inventario.html" class="sidebar-link">
+                    <span class="sidebar-icon">📦</span>
+                    <span>En Stock</span>
+                </a>
+                <a href="pedidos.html" class="sidebar-link">
+                    <span class="sidebar-icon">📋</span>
+                    <span>Pedidos</span>
+                </a>
+                <a href="clientes.html" class="sidebar-link">
+                    <span class="sidebar-icon">👥</span>
+                    <span>Clientes</span>
+                </a>
+                <a href="materiales.html" class="sidebar-link">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Materiales</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Overlay para móvil -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <div class="container">
+            <header>
+                <div>
+                    <h1>Listado de Prendas</h1>
+                    <p>Catálogo de prendas que puede producir la tienda</p>
+                </div>
+                <div>
+                    <a href="formulario-prenda.html" class="btn">Nueva Prenda</a>
+                </div>
+            </header>
+
+            <h2 style="margin: 2rem 0 1rem; color: var(--primary-color);">Catálogo de Producción</h2>
+            <div id="garments-container" class="garment-list">
+                <!-- Garment cards will be loaded here -->
+                <p style="text-align: center; color: #888;">Cargando prendas...</p>
+            </div>
+
+            <footer>
+                <p>CEO: Valeria Petaccia</p>
+            </footer>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../src/utilidades/sidebar.js"></script>
+<script type="module" src="../src/modulos/prendas.js"></script>
+</body>
+</html>

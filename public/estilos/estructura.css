@@ -5,6 +5,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding: var(--spacing-lg);
 }
 
 /* Header Styles */
@@ -30,33 +31,37 @@ header>div:last-child {
 }
 
 header h1 {
-    font-weight: 700;
-    font-size: clamp(1.5rem, 4vw, 1.875rem);
-    color: var(--primary-color);
-    letter-spacing: -0.025em;
+    font-weight: 800;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    color: var(--text-color);
+    /* Cleaner look */
+    letter-spacing: -0.03em;
     margin-bottom: var(--spacing-xs);
+    line-height: 1.1;
 }
 
 header p {
     color: var(--text-muted);
-    font-size: clamp(0.875rem, 2vw, 0.95rem);
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
+    font-weight: 400;
 }
 
 /* Footer */
 footer {
     text-align: center;
     margin-top: auto;
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xl) 0;
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--border-color);
+    background: transparent;
 }
 
 /* Grids */
 .grid-2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-lg);
 }
 
 .grid-3 {
@@ -66,13 +71,9 @@ footer {
 }
 
 /* Mobile First Responsive Design */
-@media (max-width: 640px) {
-    body {
-        padding: var(--spacing-sm);
-    }
-
+@media (max-width: 768px) {
     .container {
-        padding: 0;
+        padding: var(--spacing-md);
     }
 
     header {
