@@ -404,53 +404,87 @@ export default function OrderForm({ id }: OrderFormProps) {
                         </label>
 
                         {garmentId ? (
-                            <div className="bg-slate-950 p-4 rounded-xl text-sm text-slate-400">
+                            <div className="bg-slate-950 rounded-xl p-4 space-y-2">
                                 {selectedGarmentMaterials.length > 0 ? (
-                                    <p>Incluye: {selectedGarmentMaterials.map(m => `${m.name}`).join(', ')}</p>
+                                    selectedGarmentMaterials.map((material, index) => (
+                                        <div key={index} className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800 shadow-none">
+                                            <span className="font-medium text-slate-300 capitalize">
+                                                {material.name} {material.quantity && <span className="text-slate-500 text-sm ml-2">({material.quantity})</span>}
+                                            </span>
+                                            <div className="flex items-center gap-4">
+                                                <span className="text-slate-400 font-mono">${material.cost.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    ))
                                 ) : (
-                                    <p className="italic text-slate-400">Esta prenda no tiene materiales registrados.</p>
+                                    <p className="text-sm text-slate-400 italic text-center py-2">Esta prenda no tiene materiales registrados.</p>
                                 )}
                             </div>
                         ) : (
-                            <div className="space-y-3">
-                                <div className="grid grid-cols-1 md:flex md:items-center gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Material"
-                                        value={newMatName}
-                                        onChange={(e) => setNewMatName(e.target.value)}
-                                        className="w-full md:flex-1 px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Cant."
-                                        value={newMatQtty}
-                                        onChange={(e) => setNewMatQtty(e.target.value)}
-                                        className="w-full md:w-20 px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Costo ($)"
-                                        value={newMatCost}
-                                        onChange={(e) => setNewMatCost(e.target.value)}
-                                        className="w-full md:w-24 px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
-                                    />
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:flex md:items-end gap-2 mb-4">
+                                    <div className="w-full md:flex-1 space-y-1">
+                                        <label className="text-xs text-slate-400">Nombre Material</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej. Tela, Botones"
+                                            value={newMatName}
+                                            onChange={(e) => setNewMatName(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                                        />
+                                    </div>
+                                    <div className="w-full md:w-24 space-y-1">
+                                        <label className="text-xs text-slate-400">Cant.</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej. 1m"
+                                            value={newMatQtty}
+                                            onChange={(e) => setNewMatQtty(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                                        />
+                                    </div>
+                                    <div className="w-full md:w-32 space-y-1">
+                                        <label className="text-xs text-slate-400">Costo ($)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="0.00"
+                                            value={newMatCost}
+                                            onChange={(e) => setNewMatCost(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                                        />
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={addCustomMaterial}
-                                        className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-medium text-sm transition-colors text-slate-300 flex items-center justify-center"
+                                        className="w-full md:w-auto bg-slate-800 hover:bg-slate-700 text-slate-400 px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 h-[38px] mt-2 md:mt-0"
                                     >
-                                        <Plus size={20} />
+                                        <Plus size={18} /> Agregar
                                     </button>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {customMaterials.map((m, i) => (
-                                        <div key={i} className="bg-slate-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                                            <span>{m.name} ({m.quantity}) - ${m.cost}</span>
-                                            <button type="button" onClick={() => removeCustomMaterial(i)} className="text-slate-400 hover:text-slate-400">×</button>
-                                        </div>
-                                    ))}
-                                </div>
+
+                                {customMaterials.length > 0 ? (
+                                    <div className="bg-slate-950 rounded-xl p-4 space-y-2">
+                                        {customMaterials.map((material, index) => (
+                                            <div key={index} className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800 shadow-none">
+                                                <span className="font-medium text-slate-300 capitalize">
+                                                    {material.name} {material.quantity && <span className="text-slate-500 text-sm ml-2">({material.quantity})</span>}
+                                                </span>
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-slate-400 font-mono">${material.cost.toFixed(2)}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeCustomMaterial(index)}
+                                                        className="text-red-400 hover:text-red-600 transition-colors"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-400 italic text-center py-2">No hay materiales agregados</p>
+                                )}
                             </div>
                         )}
                     </div>
