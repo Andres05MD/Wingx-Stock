@@ -17,12 +17,17 @@ import {
   Calendar
 } from 'lucide-react';
 import { getGarments, getOrders, getMaterials, Order, Garment, Material } from '@/services/storage';
+import { useAuth } from '@/context/AuthContext';
+import AdminDashboard from '@/components/AdminDashboard';
 
 export default function Dashboard() {
+  const { role } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [garments, setGarments] = useState<Garment[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
+
+
 
   useEffect(() => {
     async function fetchData() {
@@ -39,6 +44,10 @@ export default function Dashboard() {
     }
     fetchData();
   }, []);
+
+  if (role === 'admin') {
+    return <AdminDashboard />;
+  }
 
   const sendDailySummary = () => {
     const today = new Date();

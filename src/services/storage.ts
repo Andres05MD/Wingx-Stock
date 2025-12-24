@@ -1,412 +1,262 @@
-import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, QuerySnapshot, DocumentData } from "firebase/firestore";
-
-// Collection Names
-const GARMENTS_COLLECTION = 'garments';
-const ORDERS_COLLECTION = 'orders';
-const STOCK_COLLECTION = 'stock';
-const MATERIALS_COLLECTION = 'materials';
-const CLIENTS_COLLECTION = 'clients';
+import { db, auth } from "@/lib/firebase";
+import { collection, addDoc, updateDoc, doc, getDoc, getDocs, deleteDoc, query, where, setDoc } from "firebase/firestore";
 
 // Interfaces
-export interface BaseEntity {
-    id?: string;
-    [key: string]: any;
+export interface GarmentMaterial {
+    name: string;
+    cost: number;
+    quantity: string;
 }
 
-export interface Order extends BaseEntity {
+export interface Garment {
+    id?: string;
+    name: string;
+    size: string;
+    price: number;
+    laborCost: number;
+    transportCost: number;
+    materials: GarmentMaterial[];
+    ownerId?: string;
+    createdAt?: string;
+}
+
+export interface Client {
+    id?: string;
+    name: string;
+    phone: string;
+    notes: string;
+    measurements?: Record<string, any>;
+    ownerId?: string;
+    createdAt?: string;
+}
+
+export interface Order {
+    id?: string;
     clientName: string;
     garmentName: string;
-    garmentId?: string;
     size: string;
     price: number;
     paidAmount: number;
     status: string;
-    createdAt?: string;
-    appointmentDate?: string; // Date for measurements/fitting
-    deliveryDate?: string; // Date for delivery
-}
-
-export interface GarmentMaterial {
-    name: string;
-    cost: number;
-    quantity: number | string;
-}
-
-export interface Garment extends BaseEntity {
-    name: string;
-    price: number;
-    size?: string;
-    laborCost?: number;
-    transportCost?: number;
-    materials?: GarmentMaterial[];
-}
-
-export interface StockItem extends BaseEntity {
+    createdAt: string;
+    appointmentDate?: string;
+    deliveryDate?: string;
     garmentId?: string;
-    // We should probably denormalize garmentName for easier display if garment is deleted or just for performance, 
-    // but garmentId is key. legacy form showed garment info.
-    garmentName?: string; // storing name just in case
-    quantity: number;
+    ownerId?: string;
+}
+
+export interface StockItem {
+    id?: string;
+    garmentId: string;
+    garmentName?: string;
     size: string;
+    quantity: number;
     color?: string;
-}
-
-export interface Material extends BaseEntity {
-    name: string;
-    quantity: string | number; // Legacy uses string "1 unidad" sometimes
-    price?: number;
-    notes?: string;
-    purchased?: boolean;
+    ownerId?: string;
     createdAt?: string;
-    source?: string; // Relation to Order or "Compras Extras"
 }
 
-export interface Sale extends BaseEntity {
-    clientName: string;
-    description: string;
-    amount: number;
-    date: string; // ISO date
+export interface CalendarEvent {
+    id?: string;
+    title: string;
+    date: string; // YYYY-MM-DD
+    type: 'delivery' | 'meeting' | 'other';
+    ownerId?: string;
+    createdAt?: string;
 }
 
-export interface ClientMeasurements {
-    waist?: number;
-    hip?: number;
-    chest?: number;
-    back?: number;
-    sleeve?: number;
-    length?: number;
-    pantsLength?: number;
-    shoulder?: number;
-    neck?: number;
-    custom?: string; // For extra notes
-}
-
-export interface Client extends BaseEntity {
+export interface Material { // For shopping list
+    id?: string;
     name: string;
-    phone?: string;
+    quantity: string | number;
+    price: number;
+    source?: string;
+    purchased?: boolean;
     notes?: string;
-    measurements?: ClientMeasurements;
+    ownerId?: string;
+    createdAt?: string;
 }
 
-// Generic helper to map snapshot
-const mapSnapshot = <T>(snapshot: QuerySnapshot<DocumentData>): T[] => {
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+export interface UserProfile {
+    uid: string;
+    email: string;
+    displayName?: string;
+    role: 'admin' | 'user';
+    createdAt?: string;
+}
+
+
+// Helper to get current user ID
+const getUserId = () => {
+    return auth.currentUser?.uid;
 };
 
-// --- Orders ---
-export async function getOrders(): Promise<Order[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, ORDERS_COLLECTION));
-        return mapSnapshot<Order>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting orders: ", e);
-        return [];
+// Users & Roles
+export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+    const docSnap = await getDoc(doc(db, "users", uid));
+    if (docSnap.exists()) return docSnap.data() as UserProfile;
+    return null;
+};
+
+export const saveUserProfile = async (user: UserProfile) => {
+    return setDoc(doc(db, "users", user.uid), user, { merge: true });
+};
+
+export const getCurrentUserRole = async (): Promise<'admin' | 'user'> => {
+    const userId = getUserId();
+    if (!userId) return 'user';
+    const profile = await getUserProfile(userId);
+    return profile?.role || 'user';
+};
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+    const role = await getCurrentUserRole();
+    if (role !== 'admin') return [];
+
+    const snapshot = await getDocs(collection(db, "users"));
+    return snapshot.docs.map(doc => doc.data() as UserProfile);
+};
+
+
+// Generic Helper for RBAC Queries
+const getCollectionData = async (collectionName: string) => {
+    const userId = getUserId();
+    if (!userId) return [];
+
+    const role = await getCurrentUserRole();
+
+    let q;
+    if (role === 'admin') {
+        q = collection(db, collectionName);
+    } else {
+        q = query(collection(db, collectionName), where("ownerId", "==", userId));
     }
-}
 
-export async function getOrder(id: string): Promise<Order | undefined> {
-    try {
-        const docRef = doc(db, ORDERS_COLLECTION, id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as Order;
-        }
-        return undefined;
-    } catch (e) {
-        console.error("Error getting order:", e);
-        return undefined;
-    }
-}
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
 
-export async function saveOrder(order: Order): Promise<string> {
-    try {
-        const { id, ...orderData } = order;
-        const docRef = await addDoc(collection(db, ORDERS_COLLECTION), orderData);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving order: ", e);
-        throw e;
-    }
-}
+// Garments
+export const saveGarment = async (garment: Garment) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "garments"), { ...garment, ownerId: userId, createdAt: new Date().toISOString() });
+};
 
-export async function updateOrder(id: string, updates: Partial<Order>): Promise<void> {
-    try {
-        const docRef = doc(db, ORDERS_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating order: ", e);
-        throw e;
-    }
-}
+export const updateGarment = async (id: string, data: Partial<Garment>) => {
+    return updateDoc(doc(db, "garments", id), data);
+};
 
-export async function deleteOrder(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, ORDERS_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting order: ", e);
-        throw e;
-    }
-}
+export const getGarments = async (): Promise<Garment[]> => {
+    return await getCollectionData("garments") as Garment[];
+};
 
-// --- Garments ---
-export async function getGarments(): Promise<Garment[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, GARMENTS_COLLECTION));
-        return mapSnapshot<Garment>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting garments: ", e);
-        return [];
-    }
-}
+export const getGarmentById = async (id: string): Promise<Garment | null> => {
+    const docSnap = await getDoc(doc(db, "garments", id));
+    if (docSnap.exists()) return { id: docSnap.id, ...docSnap.data() } as Garment;
+    return null;
+};
 
-export async function getGarmentById(id: string): Promise<Garment | null> {
-    try {
-        const docRef = doc(db, GARMENTS_COLLECTION, id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as Garment;
-        } else {
-            return null;
-        }
-    } catch (e) {
-        console.error("Error getting garment: ", e);
-        return null;
-    }
-}
+export const deleteGarmentFromStorage = async (id: string) => {
+    return deleteDoc(doc(db, "garments", id));
+};
 
-export async function saveGarment(garment: Garment): Promise<string> {
-    try {
-        const { id, ...data } = garment;
-        const docRef = await addDoc(collection(db, GARMENTS_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving garment: ", e);
-        throw e;
-    }
-}
 
-export async function updateGarment(id: string, updates: Partial<Garment>): Promise<void> {
-    try {
-        const docRef = doc(db, GARMENTS_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating garment: ", e);
-        throw e;
-    }
-}
+// Clients
+export const saveClient = async (client: Client) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "clients"), { ...client, ownerId: userId, createdAt: new Date().toISOString() });
+};
 
-export async function deleteGarmentFromStorage(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, GARMENTS_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting garment: ", e);
-        throw e;
-    }
-}
+export const updateClient = async (id: string, data: Partial<Client>) => {
+    return updateDoc(doc(db, "clients", id), data);
+};
 
-// --- Stock ---
-export async function getStockItems(): Promise<StockItem[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, STOCK_COLLECTION));
-        return mapSnapshot<StockItem>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting stock: ", e);
-        return [];
-    }
-}
+export const getClients = async (): Promise<Client[]> => {
+    return await getCollectionData("clients") as Client[];
+};
 
-export async function saveStockItem(item: StockItem): Promise<string> {
-    try {
-        const { id, ...data } = item;
-        const docRef = await addDoc(collection(db, STOCK_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving stock item: ", e);
-        throw e;
-    }
-}
+export const deleteClient = async (id: string) => {
+    return deleteDoc(doc(db, "clients", id));
+};
 
-export async function updateStockItem(id: string, updates: Partial<StockItem>): Promise<void> {
-    try {
-        const docRef = doc(db, STOCK_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating stock item: ", e);
-        throw e;
-    }
-}
 
-export async function deleteStockItem(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, STOCK_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting stock item: ", e);
-        throw e;
-    }
-}
+// Orders
+export const saveOrder = async (order: Order) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "orders"), { ...order, ownerId: userId });
+};
 
-// --- Materials ---
-export async function getMaterials(): Promise<Material[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, MATERIALS_COLLECTION));
-        return mapSnapshot<Material>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting materials: ", e);
-        return [];
-    }
-}
+export const updateOrder = async (id: string, data: Partial<Order>) => {
+    return updateDoc(doc(db, "orders", id), data);
+};
 
-export async function saveMaterial(material: Material): Promise<string> {
-    try {
-        const { id, ...data } = material;
-        const docRef = await addDoc(collection(db, MATERIALS_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving material: ", e);
-        throw e;
-    }
-}
+export const getOrders = async (): Promise<Order[]> => {
+    return await getCollectionData("orders") as Order[];
+};
 
-export async function updateMaterial(id: string, updates: Partial<Material>): Promise<void> {
-    try {
-        const docRef = doc(db, MATERIALS_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating material: ", e);
-        throw e;
-    }
-}
+export const getOrder = async (id: string): Promise<Order | null> => {
+    const docSnap = await getDoc(doc(db, "orders", id));
+    if (docSnap.exists()) return { id: docSnap.id, ...docSnap.data() } as Order;
+    return null;
+};
 
-export async function deleteMaterial(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, MATERIALS_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting material: ", e);
-        throw e;
-    }
-}
+export const deleteOrder = async (id: string) => {
+    return deleteDoc(doc(db, "orders", id));
+};
 
-// --- Sales ---
-const SALES_COLLECTION = 'sales';
+// Materials (Shopping List)
+export const saveMaterial = async (material: Material) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "materials"), { ...material, ownerId: userId, createdAt: new Date().toISOString() });
+};
 
-export async function getSales(): Promise<Sale[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, SALES_COLLECTION));
-        return mapSnapshot<Sale>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting sales: ", e);
-        return [];
-    }
-}
+export const getMaterials = async (): Promise<Material[]> => {
+    return await getCollectionData("materials") as Material[];
+};
 
-export async function saveSale(sale: Sale): Promise<string> {
-    try {
-        const { id, ...data } = sale;
-        const docRef = await addDoc(collection(db, SALES_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving sale: ", e);
-        throw e;
-    }
-}
+export const updateMaterial = async (id: string, data: Partial<Material>) => {
+    return updateDoc(doc(db, "materials", id), data);
+};
 
-export async function updateSale(id: string, updates: Partial<Sale>): Promise<void> {
-    try {
-        const docRef = doc(db, SALES_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating sale: ", e);
-        throw e;
-    }
-}
+export const deleteMaterial = async (id: string) => {
+    return deleteDoc(doc(db, "materials", id));
+};
 
-export async function deleteSale(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, SALES_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting sale: ", e);
-        throw e;
-    }
-}
 
-// --- Events ---
-const EVENTS_COLLECTION = 'events';
+// Stock
+export const saveStockItem = async (item: StockItem) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "stock"), { ...item, ownerId: userId, createdAt: new Date().toISOString() });
+};
 
-export interface CalendarEvent extends BaseEntity {
-    title: string;
-    date: string; // ISO date YYYY-MM-DD
-    type: 'delivery' | 'meeting' | 'other';
-    description?: string;
-}
+export const getStockItems = async (): Promise<StockItem[]> => {
+    return await getCollectionData("stock") as StockItem[];
+};
 
-export async function getEvents(): Promise<CalendarEvent[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, EVENTS_COLLECTION));
-        return mapSnapshot<CalendarEvent>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting events: ", e);
-        return [];
-    }
-}
+export const updateStockItem = async (id: string, data: Partial<StockItem>) => {
+    return updateDoc(doc(db, "stock", id), data);
+};
 
-export async function saveEvent(event: CalendarEvent): Promise<string> {
-    try {
-        const { id, ...data } = event;
-        const docRef = await addDoc(collection(db, EVENTS_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving event: ", e);
-        throw e;
-    }
-}
+export const deleteStockItem = async (id: string) => {
+    return deleteDoc(doc(db, "stock", id));
+};
 
-export async function deleteEvent(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, EVENTS_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting event: ", e);
-        throw e;
-    }
-}
+// Events / Agenda
+export const saveEvent = async (event: CalendarEvent) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+    return addDoc(collection(db, "events"), { ...event, ownerId: userId, createdAt: new Date().toISOString() });
+};
 
-// --- Clients ---
-export async function getClients(): Promise<Client[]> {
-    try {
-        const querySnapshot = await getDocs(collection(db, CLIENTS_COLLECTION));
-        return mapSnapshot<Client>(querySnapshot);
-    } catch (e) {
-        console.error("Error getting clients: ", e);
-        return [];
-    }
-}
+export const getEvents = async (): Promise<CalendarEvent[]> => {
+    return await getCollectionData("events") as CalendarEvent[];
+};
 
-export async function saveClient(client: Client): Promise<string> {
-    try {
-        const { id, ...data } = client;
-        const docRef = await addDoc(collection(db, CLIENTS_COLLECTION), data);
-        return docRef.id;
-    } catch (e) {
-        console.error("Error saving client: ", e);
-        throw e;
-    }
-}
-
-export async function updateClient(id: string, updates: Partial<Client>): Promise<void> {
-    try {
-        const docRef = doc(db, CLIENTS_COLLECTION, id);
-        await updateDoc(docRef, updates);
-    } catch (e) {
-        console.error("Error updating client: ", e);
-        throw e;
-    }
-}
-
-export async function deleteClient(id: string): Promise<void> {
-    try {
-        await deleteDoc(doc(db, CLIENTS_COLLECTION, id));
-    } catch (e) {
-        console.error("Error deleting client: ", e);
-        throw e;
-    }
-}
+export const deleteEvent = async (id: string) => {
+    return deleteDoc(doc(db, "events", id));
+};

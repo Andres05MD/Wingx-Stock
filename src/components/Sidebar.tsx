@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Shirt, Package, ClipboardList, Users, ShoppingCart, X, Calendar, DollarSign } from 'lucide-react';
+import { Home, Shirt, Package, ClipboardList, Users, ShoppingCart, X, Calendar, LogOut, ShieldCheck } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
+    const { logout, role } = useAuth();
 
     const links = [
         { name: 'Prendas', href: '/prendas', icon: Shirt },
@@ -35,7 +37,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg shadow-blue-500/20 text-white font-bold text-xl">
                             W
                         </div>
-                        <span className="text-xl font-extrabold text-white tracking-tight">Wingx</span>
+                        <div className="flex flex-col">
+                            <span className="text-xl font-extrabold text-white tracking-tight leading-none">Wingx</span>
+                            {role === 'admin' && (
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                                    Admin
+                                </span>
+                            )}
+                        </div>
                     </Link>
                     <button
                         onClick={onClose}
@@ -75,8 +84,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </nav>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-slate-800">
-                    <div className="text-xs text-slate-400 text-center">
+                <div className="p-4 border-t border-slate-800 space-y-4">
+                    <button
+                        onClick={logout}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-red-400 transition-all duration-200 group"
+                    >
+                        <LogOut
+                            size={20}
+                            className="text-slate-500 group-hover:text-red-400 transition-colors duration-200"
+                        />
+                        <span>Cerrar Sesión</span>
+                    </button>
+                    <div className="text-xs text-slate-500 text-center">
                         &copy; 2025 Wingx App
                     </div>
                 </div>

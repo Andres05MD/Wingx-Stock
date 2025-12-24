@@ -1,11 +1,34 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Menu } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Shell({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const pathname = usePathname();
+    const router = useRouter();
+    const { user, loading } = useAuth();
+
+    const isPublicRoute = pathname === '/login';
+
+    useEffect(() => {
+        if (!loading && !user && !isPublicRoute) {
+            router.push('/login');
+        }
+    }, [user, loading, isPublicRoute, router]);
+
+    if (isPublicRoute) {
+        return <>{children}</>;
+    }
+
+    if (loading) {
+        return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-500">Cargando...</div>;
+    }
+
+    if (!user) return null;
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200">
