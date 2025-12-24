@@ -12,7 +12,9 @@ import {
   Activity,
   Layers,
   ArrowRight,
-  Send
+  Send,
+  Users,
+  Calendar
 } from 'lucide-react';
 import { getGarments, getOrders, getMaterials, Order, Garment, Material } from '@/services/storage';
 
@@ -66,7 +68,7 @@ export default function Dashboard() {
     // Citas Hoy
     if (appointmentsToday.length > 0) {
       message += `\n*@ HOY (Citas):*\n`;
-      appointmentsToday.forEach(o => message += `- ${o.clientName} - ${o.garmentName})\n`);
+      appointmentsToday.forEach(o => message += `- ${o.clientName} - ${o.garmentName}\n`);
     }
 
     // Entregas Mañana
@@ -90,34 +92,28 @@ export default function Dashboard() {
   };
 
   // Calculations
-  const realIncome = orders.reduce((sum, o) => sum + (o.paidAmount || 0), 0);
+  const realIncome = orders.reduce((sum, o) => sum + (Number(o.paidAmount) || 0), 0);
 
   const pendingPayments = orders.reduce((sum, o) => {
-    const balance = (o.price || 0) - (o.paidAmount || 0);
+    const balance = (Number(o.price) || 0) - (Number(o.paidAmount) || 0);
     return sum + (balance > 0 ? balance : 0);
   }, 0);
 
-  const activeOrders = orders.filter(o => o.status !== 'Finalizado').length;
+  const activeOrders = orders.filter(o => o.status !== 'Finalizado' && o.status !== 'Entregado').length;
 
-  // Calculate Profit: Revenue - Costs (only for linked garments)
+  // Calculate Profit
   const estimatedProfit = orders.reduce((sum, order) => {
-    // Revenue from this order
-    const revenue = order.price || 0;
-
-    // Cost
+    const revenue = Number(order.price) || 0;
     let cost = 0;
     if (order.garmentId) {
       const garment = garments.find(g => g.id === order.garmentId);
       if (garment) {
-        const labor = garment.laborCost || 0;
-        const transport = garment.transportCost || 0;
+        const labor = Number(garment.laborCost) || 0;
+        const transport = Number(garment.transportCost) || 0;
         const materials = garment.materials?.reduce((mSum, m) => mSum + (Number(m.cost) || 0), 0) || 0;
         cost = labor + transport + materials;
       }
     }
-    // If no linked garment, we assume cost is 0 (or unknown). 
-    // Ideally we should prompt user for cost on custom orders, but for now this is the best estimate.
-
     return sum + (revenue - cost);
   }, 0);
 
@@ -141,27 +137,14 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Wingx Stock</h1>
-          <p className="text-slate-500 mt-1">Dashboard de gestión general</p>
-        </div>
-        <button
-          onClick={sendDailySummary}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold shadow-lg shadow-emerald-600/20 flex items-center gap-2 transition-all"
-        >
-          <Send size={18} />
-          Enviarme Resumen
-        </button>
-      </header>
+      {/* Header code ... */}
 
       {/* Quick Actions */}
       <section>
         <h2 className="text-lg font-bold text-blue-600 mb-4 flex items-center gap-2">
           Acciones Rápidas
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Link href="/pedidos" className="group p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-none hover:shadow-none hover:border-blue-100 transition-all flex flex-col items-center justify-center gap-3 text-center">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
               <ClipboardPlus size={24} />
@@ -179,6 +162,18 @@ export default function Dashboard() {
               <Shirt size={24} />
             </div>
             <span className="font-semibold text-slate-300 text-sm">Nueva Prenda</span>
+          </Link>
+          <Link href="/agenda" className="group p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-none hover:shadow-none hover:border-pink-100 transition-all flex flex-col items-center justify-center gap-3 text-center">
+            <div className="p-3 bg-pink-50 text-pink-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Calendar size={24} />
+            </div>
+            <span className="font-semibold text-slate-300 text-sm">Ver Agenda</span>
+          </Link>
+          <Link href="/clientes" className="group p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-none hover:shadow-none hover:border-cyan-100 transition-all flex flex-col items-center justify-center gap-3 text-center">
+            <div className="p-3 bg-cyan-50 text-cyan-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Users size={24} />
+            </div>
+            <span className="font-semibold text-slate-300 text-sm">Ver Clientes</span>
           </Link>
           <Link href="/inventario" className="group p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-none hover:shadow-none hover:border-orange-100 transition-all flex flex-col items-center justify-center gap-3 text-center">
             <div className="p-3 bg-orange-50 text-orange-600 rounded-xl group-hover:scale-110 transition-transform">
