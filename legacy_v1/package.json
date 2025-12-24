@@ -1,0 +1,13 @@
+{
+  "name": "wingx",
+  "version": "1.0.0",
+  "description": "Wingx Application",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "dev": "npx serve ."
+  },
+  "dependencies": {
+    "firebase": "^12.6.0"
+  }
+}

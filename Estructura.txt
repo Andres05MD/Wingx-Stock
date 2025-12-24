@@ -1,7 +1,5 @@
 Idioma: Español
-Librerias: Firebase, SweetAlert2
-
-Sin README.md ni documentacion
+Librerias: Next.js, Firebase, SweetAlert2, TailwindCSS, React.
 
 Idea general: Un Sistema de control de inventario para una tienda de ropa y la gestion de los clientes. Sera utilizada solo por la encargada de la tienda para tener un control de los productos y los clientes.
 
@@ -9,9 +7,9 @@ Funcionalidades:
 - Gestion de prendas
 - Gestion de clientes
 - Gestion de pedidos
-- Gestion de ventas
 - Gestion de inventario
 - Gestion de materiales por comprar
+- Agenda de pedidos
 
 Gestion de prendas: donde se amacenaran todas las prendas que puede producir la tienda con los materiales que necesite y su precio 
 - Agregar prendas
@@ -26,6 +24,7 @@ Gestion de clientes: donde se amacenaran todos los clientes y sus datos
 - Eliminar clientes
 - Buscar clientes
 - Listar clientes
+- Historial de compras por cliente
 
 Gestion de pedidos: donde se amacenaran todos los pedidos que se han realizado y su estado
 - Agregar pedidos
@@ -33,13 +32,7 @@ Gestion de pedidos: donde se amacenaran todos los pedidos que se han realizado y
 - Eliminar pedidos
 - Buscar pedidos
 - Listar pedidos
-
-Gestion de ventas: donde se amacenaran todos los ventas que se han realizado y su estado
-- Agregar ventas
-- Modificar ventas
-- Eliminar ventas
-- Buscar ventas
-- Listar ventas
+- Card de pedidos por colores segun el estado (sin comezar: gris, pendiente: amarillo, en proceso: verde, entregado: rojo).
 
 Gestion de inventario: donde se amacenaran todas las prendas de disponibilidad inmediata
 - Agregar inventario
@@ -55,6 +48,10 @@ Gestion de materiales por comprar: donde se amacenaran todos los materiales que 
 - Buscar materiales por comprar
 - Listar materiales por comprar
 
+Agenda de pedidos: Se mostrara un calendario y se remarcara el dia en el que se realiza el pedido y el dia de entrega remarcado con colores segun el cliente
+- Calendario de pedidos, con fecha de agendado y entrega.
+
 Siempre mantener el estilo responsive y el codigo limpio y ordenado.
 
 La idea del sistema es que facilite en lo maximo la gestion de la tienda y la facilidad de uso para la encargada de la tienda y esta pueda gestionarla con facilidad.
+
