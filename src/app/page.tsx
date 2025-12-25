@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   ClipboardPlus,
   ShoppingCart,
@@ -23,6 +24,8 @@ import { useExchangeRate } from "@/context/ExchangeRateContext";
 
 export default function Dashboard() {
   const { role } = useAuth();
+  const searchParams = useSearchParams();
+  const viewMode = searchParams.get('view');
   const { formatBs } = useExchangeRate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [garments, setGarments] = useState<Garment[]>([]);
@@ -47,7 +50,7 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  if (role === 'admin') {
+  if (role === 'admin' && viewMode !== 'user') {
     return <AdminDashboard />;
   }
 

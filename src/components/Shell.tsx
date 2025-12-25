@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Menu } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Shell({ children }: { children: React.ReactNode }) {
@@ -40,7 +41,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-slate-400 hover:bg-slate-800 rounded-lg transition-colors">
                         <Menu size={24} />
                     </button>
-                    <span className="font-bold text-lg text-white">Wingx</span>
+                    <Link href="/" className="font-bold text-lg text-white">Wingx</Link>
                 </div>
             </div>
 
