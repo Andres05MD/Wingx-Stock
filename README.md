@@ -5,18 +5,20 @@ Wingx es una aplicación web moderna diseñada para optimizar la gestión de peq
 ## Características Principales
 
 ### 🔐 Autenticación y Roles
-*   **Inicio de Sesión Seguro**: Soporte para correo/contraseña y Google Sign-In (próximamente).
+*   **Inicio de Sesión Seguro**: Soporte para correo/contraseña.
+*   **Separación de Datos por Usuario**: Cada taller (Owner) tiene su propia base de datos aislada.
 *   **Sistema de Roles**: Distinción entre usuarios estándar y administradores.
 *   **Gestión de Perfiles**: Registro de nombres y correos.
 
 ### 👥 Panel de Usuario (Taller)
-*   **Gestión de Pedidos**: Creación, seguimiento de estado (Pendiente, En Proceso, Finalizado, Entregado) y control de pagos (saldos pendientes).
-*   **Base de Datos de Prendas**: Cálculo de costos (Mano de obra, Transporte, Materiales) y precios sugeridos.
+*   **Gestión de Pedidos**: Creación, seguimiento de estado (Pendiente, En Proceso, Finalizado, Entregado) y control de pagos.
+*   **Base de Datos de Prendas**: Cálculo de costos detallado y precios sugeridos.
 *   **Inventario (Stock)**: Control de prendas listas para venta inmediata.
-*   **Agenda Digital**: Calendario para organizar citas de medidas y fechas de entrega.
-*   **Lista de Materiales**: Gestión de compras necesarias para la producción.
-*   **Clientes**: Base de datos de clientes con historial y datos de contacto.
-*   **Resumen Diario**: Generación automática de reportes para WhatsApp con entregas y pendientes del día.
+*   **Agenda Digital**: Calendario interactivo para organizar entregas.
+*   **Gestión de Materiales**: Lista de compras necesarias para producción.
+*   **Clientes**: Base de datos de clientes con historial de compras.
+*   **Tasa de Cambio Global**: Widget integrado para conversión automática de precios (Bs/$) en toda la aplicación.
+*   **Resumen Diario**: Generación automática de reportes para compartir.
 
 ### 🛡️ Panel de Administrador
 *   **Dashboard Exclusivo**: Vista global de todo el sistema.
@@ -29,11 +31,24 @@ Wingx es una aplicación web moderna diseñada para optimizar la gestión de peq
 
 ## Tecnologías Utilizadas
 
-*   **Frontend**: [Next.js 15+](https://nextjs.org/) (App Directory), React, TypeScript.
-*   **Estilos**: [Tailwind CSS](https://tailwindcss.com/) con diseño responsivo y moderno (Glassmorphism).
+*   **Frontend**: [Next.js 15+](https://nextjs.org/) (App Router), React 19, TypeScript.
+*   **Estilos**: [Tailwind CSS 4](https://tailwindcss.com/) con diseño responsivo y moderno (Glassmorphism).
 *   **Base de Datos y Auth**: [Firebase](https://firebase.google.com/) (Firestore, Authentication).
-*   **Iconos**: [Lucide React](https://lucide.dev/).
-*   **Alertas**: [SweetAlert2](https://sweetalert2.github.io/).
+*   **Utilidades**:
+    *   [Date-fns](https://date-fns.org/) para manejo de fechas.
+    *   [Lucide React](https://lucide.dev/) para iconos.
+    *   [SweetAlert2](https://sweetalert2.github.io/) para notificaciones y alertas.
+
+## Estructura del Proyecto
+
+```
+/src
+├── /app                 # Rutas (App Router) y Layouts
+├── /components          # Componentes de UI (Formularios, Dashboards, Widgets)
+├── /context             # Estado Global (Auth, ExchangeRate)
+├── /lib                 # Configuración de Firebase y utilidades
+└── /services            # Lógica de negocio y persistencia
+```
 
 ## Configuración del Proyecto
 
@@ -52,10 +67,12 @@ Wingx es una aplicación web moderna diseñada para optimizar la gestión de peq
 2.  Instalar dependencias:
     ```bash
     npm install
+    # o
+    npm install --legacy-peer-deps
     ```
 
 3.  Configurar Variables de Entorno:
-    Crear un archivo `.env.local` (o configurar directamente en `src/lib/firebase.ts` para desarrollo local) con las credenciales de Firebase.
+    Crear un archivo `.env.local` con las credenciales de Firebase.
 
 4.  Ejecutar en desarrollo:
     ```bash
@@ -66,8 +83,4 @@ Wingx es una aplicación web moderna diseñada para optimizar la gestión de peq
 
 ## Despliegue
 
-La aplicación está optimizada para ser desplegada en [Vercel](https://vercel.com). Simplemente conecta tu repositorio y configura las variables de entorno.
-
----
-
-**Wingx** - Gestiona tu pasión, optimiza tu negocio.
+La aplicación está preparada para ser desplegada en [Vercel](https://vercel.com).
