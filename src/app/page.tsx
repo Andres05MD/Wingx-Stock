@@ -19,9 +19,11 @@ import {
 import { getGarments, getOrders, getMaterials, Order, Garment, Material } from '@/services/storage';
 import { useAuth } from '@/context/AuthContext';
 import AdminDashboard from '@/components/AdminDashboard';
+import { useExchangeRate } from "@/context/ExchangeRateContext";
 
 export default function Dashboard() {
   const { role } = useAuth();
+  const { formatBs } = useExchangeRate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [garments, setGarments] = useState<Garment[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -207,6 +209,9 @@ export default function Dashboard() {
               <p className="text-2xl font-bold text-slate-100 mt-1">
                 ${loading ? '...' : realIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
+              <p className="text-xs text-emerald-500 font-mono opacity-80">
+                {formatBs(realIncome)}
+              </p>
             </div>
           </div>
 
@@ -219,6 +224,9 @@ export default function Dashboard() {
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Por Cobrar</p>
               <p className="text-2xl font-bold text-slate-100 mt-1">
                 ${loading ? '...' : pendingPayments.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-red-500 font-mono opacity-80">
+                {formatBs(pendingPayments)}
               </p>
             </div>
           </div>
@@ -245,6 +253,9 @@ export default function Dashboard() {
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ganancia (Est.)</p>
               <p className="text-2xl font-bold text-slate-100 mt-1">
                 ${loading ? '...' : estimatedProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-indigo-500 font-mono opacity-80">
+                {formatBs(estimatedProfit)}
               </p>
             </div>
           </div>
@@ -293,6 +304,7 @@ export default function Dashboard() {
                         <p className={`font-bold ${balance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
                           ${balance > 0 ? balance.toFixed(2) : '0.00'}
                         </p>
+                        {balance > 0 && <p className="text-[10px] text-red-400 font-mono">{formatBs(balance)}</p>}
                       </div>
                     </div>
                   </div>

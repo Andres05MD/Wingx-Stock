@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Order, Garment, GarmentMaterial, getGarments, saveOrder, updateOrder, getOrder, saveMaterial, getMaterials, getClients, Client } from "@/services/storage"; // getOrder doesn't exist yet but I'll add it or use filtering
+import { Order, Garment, GarmentMaterial, getGarments, saveOrder, updateOrder, getOrder, saveMaterial, getMaterials, getClients, Client } from "@/services/storage";
 import Swal from "sweetalert2";
 import { Plus, Trash, ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
+import { useExchangeRate } from "@/context/ExchangeRateContext";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from 'date-fns/locale/es';
@@ -21,6 +22,7 @@ interface OrderFormProps {
 
 export default function OrderForm({ id }: OrderFormProps) {
     const router = useRouter();
+    const { formatBs } = useExchangeRate();
     const [loading, setLoading] = useState(false);
     const [garments, setGarments] = useState<Garment[]>([]);
     const [clients, setClients] = useState<Client[]>([]);
@@ -368,6 +370,11 @@ export default function OrderForm({ id }: OrderFormProps) {
                             onChange={(e) => setPrice(e.target.value)}
                             className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                         />
+                        {price && Number(price) > 0 && (
+                            <p className="text-xs text-emerald-400 font-mono text-right">
+                                ≈ {formatBs(Number(price))}
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-300">Monto Abonado ($)</label>
@@ -379,6 +386,11 @@ export default function OrderForm({ id }: OrderFormProps) {
                             onChange={(e) => setPaidAmount(e.target.value)}
                             className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                         />
+                        {paidAmount && Number(paidAmount) > 0 && (
+                            <p className="text-xs text-emerald-400 font-mono text-right">
+                                ≈ {formatBs(Number(paidAmount))}
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-300">Estado</label>
@@ -443,15 +455,22 @@ export default function OrderForm({ id }: OrderFormProps) {
                                             className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                                         />
                                     </div>
-                                    <div className="w-full md:w-32 space-y-1">
+                                    <div className="w-full md:w-32 space-y-1 relative group">
                                         <label className="text-xs text-slate-400">Costo ($)</label>
                                         <input
                                             type="number"
                                             placeholder="0.00"
                                             value={newMatCost}
-                                            onChange={(e) => setNewMatCost(e.target.value)}
+                                            onChange={(e) => setNewMatCost(e.target.value === '' ? '' : Number(e.target.value))}
                                             className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                                         />
+                                        {newMatCost && Number(newMatCost) > 0 && (
+                                            <div className="md:absolute md:top-full md:right-0 md:pt-1 pointer-events-none mt-2 md:mt-0">
+                                                <p className="text-xs text-emerald-400 font-mono bg-slate-950/90 px-1 rounded border border-slate-800 shadow-xl z-10 text-right md:text-left">
+                                                    ≈ {formatBs(Number(newMatCost))}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                     <button
                                         type="button"

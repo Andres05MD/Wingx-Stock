@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Shirt, Package, ClipboardList, Users, ShoppingCart, X, Calendar, LogOut, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import ExchangeRateWidget from './ExchangeRateWidget';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -85,6 +86,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                 {/* Footer */}
                 <div className="p-4 border-t border-slate-800 space-y-4">
+                    <div className="px-1">
+                        <ExchangeRateWidget />
+                    </div>
                     <button
                         onClick={logout}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-red-400 transition-all duration-200 group"

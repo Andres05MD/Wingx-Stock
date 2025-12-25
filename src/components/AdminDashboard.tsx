@@ -6,8 +6,10 @@ import { Users, ClipboardList, DollarSign, TrendingUp, Search, Lock, Shirt } fro
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Swal from 'sweetalert2';
+import { useExchangeRate } from "@/context/ExchangeRateContext";
 
 export default function AdminDashboard() {
+    const { formatBs } = useExchangeRate();
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -101,12 +103,31 @@ export default function AdminDashboard() {
                 <p className="text-slate-500">Visión global del sistema y gestión de usuarios.</p>
             </div>
 
-            {/* System Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <StatCard icon={Users} label="Usuarios Totales" value={users.length} color="blue" />
                 <StatCard icon={ClipboardList} label="Pedidos Totales" value={totalSystemOrders} color="indigo" />
-                <StatCard icon={DollarSign} label="Ingresos Totales" value={`$${totalSystemRevenue.toFixed(2)}`} color="emerald" />
-                <StatCard icon={TrendingUp} label="Promedio por Usuario" value={`$${averageRevenuePerUser.toFixed(2)}`} color="amber" />
+                <StatCard
+                    icon={DollarSign}
+                    label="Ingresos Totales"
+                    value={
+                        <div className="flex flex-col">
+                            <span>${totalSystemRevenue.toFixed(2)}</span>
+                            <span className="text-xs opacity-70 font-mono font-normal">{formatBs(totalSystemRevenue)}</span>
+                        </div>
+                    }
+                    color="emerald"
+                />
+                <StatCard
+                    icon={TrendingUp}
+                    label="Promedio por Usuario"
+                    value={
+                        <div className="flex flex-col">
+                            <span>${averageRevenuePerUser.toFixed(2)}</span>
+                            <span className="text-xs opacity-70 font-mono font-normal">{formatBs(averageRevenuePerUser)}</span>
+                        </div>
+                    }
+                    color="amber"
+                />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -182,7 +203,10 @@ export default function AdminDashboard() {
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-xs text-slate-300"><b>{user.totalOrders}</b> Pedidos</span>
-                                                    <span className="text-xs text-emerald-400"><b>${user.totalRevenue.toFixed(0)}</b> Gen.</span>
+                                                    <span className="text-xs text-emerald-400 flex flex-col items-end">
+                                                        <span><b>${user.totalRevenue.toFixed(0)}</b> Gen.</span>
+                                                        <span className="text-[10px] opacity-70 font-mono text-emerald-500/70">{formatBs(user.totalRevenue)}</span>
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
@@ -216,7 +240,7 @@ export default function AdminDashboard() {
     );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) {
+function StatCard({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number | React.ReactNode, color: string }) {
     const colorClasses: Record<string, string> = {
         blue: 'bg-blue-500/10 text-blue-500',
         indigo: 'bg-indigo-500/10 text-indigo-500',
@@ -231,7 +255,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any, label: strin
             </div>
             <div>
                 <p className="text-sm text-slate-500 font-medium">{label}</p>
-                <p className="text-2xl font-bold text-slate-100">{value}</p>
+                <div className="text-2xl font-bold text-slate-100">{value}</div>
             </div>
         </div>
     );

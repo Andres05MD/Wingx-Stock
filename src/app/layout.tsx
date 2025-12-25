@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Shell from "@/components/Shell";
 import { AuthProvider } from "@/context/AuthContext";
+import { ExchangeRateProvider } from "@/context/ExchangeRateContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.className} bg-slate-950 text-white`}>
         <AuthProvider>
-          <Shell>{children}</Shell>
+          <ExchangeRateProvider>
+            <Shell>{children}</Shell>
+          </ExchangeRateProvider>
         </AuthProvider>
       </body>
     </html>

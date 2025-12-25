@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { Plus, Search, Trash, ShoppingCart, Check, X, DollarSign, Clock } from 'lucide-react';
 import { getMaterials, saveMaterial, updateMaterial, deleteMaterial, Material } from '@/services/storage';
 import Swal from 'sweetalert2';
+import { useExchangeRate } from "@/context/ExchangeRateContext";
 
 export default function MaterialesPage() {
+    const { formatBs } = useExchangeRate();
     const [materials, setMaterials] = useState<Material[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +45,8 @@ export default function MaterialesPage() {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'price' ? parseFloat(value) : value
+            ...prev,
+            [name]: name === 'price' ? (value === '' ? 0 : parseFloat(value)) : value
         }));
     };
 
@@ -183,6 +186,7 @@ export default function MaterialesPage() {
                     <div>
                         <p className="text-sm text-slate-500">Costo Estimado</p>
                         <p className="text-xl font-bold text-slate-100">${totalCost.toFixed(2)}</p>
+                        <p className="text-xs text-blue-500 font-mono opacity-80">{formatBs(totalCost)}</p>
                     </div>
                 </div>
                 <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-none flex items-center gap-4">
@@ -223,7 +227,12 @@ export default function MaterialesPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold text-slate-300">Precio Estimado ($)</label>
-                                <input type="number" name="price" step="0.01" value={formData.price} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
+                                <input type="number" name="price" step="0.01" value={formData.price === 0 ? '' : formData.price} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
+                                {formData.price && formData.price > 0 && (
+                                    <p className="text-xs text-emerald-400 font-mono text-right mt-1">
+                                        ≈ {formatBs(Number(formData.price))}
+                                    </p>
+                                )}
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold text-slate-300">Notas</label>
@@ -287,7 +296,14 @@ export default function MaterialesPage() {
                                                 <h3 className={`font-bold text-slate-100 ${material.purchased ? 'line-through text-slate-500' : ''}`}>{material.name}</h3>
                                                 <p className="text-sm text-slate-500">
                                                     {material.quantity && <span className="mr-2 border-r border-slate-600 pr-2">{material.quantity}</span>}
-                                                    {material.price && material.price > 0 && <span>${material.price.toFixed(2)}</span>}
+                                                    {material.price && material.price > 0 && (
+                                                        <span>
+                                                            ${material.price.toFixed(2)}
+                                                            <span className="text-emerald-500/80 text-xs ml-1 font-mono">
+                                                                ({formatBs(material.price)})
+                                                            </span>
+                                                        </span>
+                                                    )}
                                                 </p>
                                                 {material.notes && <p className="text-xs text-slate-400 mt-1 italic">{material.notes}</p>}
                                             </div>

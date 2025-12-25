@@ -6,6 +6,7 @@ import { Garment, GarmentMaterial, saveGarment, updateGarment, getGarmentById } 
 import Swal from "sweetalert2";
 import { Plus, Trash, ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
+import { useExchangeRate } from "@/context/ExchangeRateContext";
 
 interface GarmentFormProps {
     id?: string;
@@ -13,6 +14,7 @@ interface GarmentFormProps {
 
 export default function GarmentForm({ id }: GarmentFormProps) {
     const router = useRouter();
+    const { formatBs } = useExchangeRate();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<Garment>>({
         name: "",
@@ -47,7 +49,7 @@ export default function GarmentForm({ id }: GarmentFormProps) {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === "number" ? parseFloat(value) : value
+            [name]: type === "number" ? (value === '' ? 0 : parseFloat(value)) : value
         }));
     };
 
@@ -154,6 +156,11 @@ export default function GarmentForm({ id }: GarmentFormProps) {
                             onChange={handleChange}
                             className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-slate-950 text-white placeholder-slate-500"
                         />
+                        {formData.price && formData.price > 0 && (
+                            <p className="text-xs text-emerald-400 font-mono text-right">
+                                ≈ {formatBs(Number(formData.price))}
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-300">Mano de Obra ($)</label>
@@ -165,6 +172,11 @@ export default function GarmentForm({ id }: GarmentFormProps) {
                             onChange={handleChange}
                             className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-slate-950 text-white placeholder-slate-500"
                         />
+                        {formData.laborCost && formData.laborCost > 0 && (
+                            <p className="text-xs text-emerald-400 font-mono text-right">
+                                ≈ {formatBs(Number(formData.laborCost))}
+                            </p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-300">Pasaje/Transporte ($)</label>
@@ -176,6 +188,11 @@ export default function GarmentForm({ id }: GarmentFormProps) {
                             onChange={handleChange}
                             className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-slate-950 text-white placeholder-slate-500"
                         />
+                        {formData.transportCost && formData.transportCost > 0 && (
+                            <p className="text-xs text-emerald-400 font-mono text-right">
+                                ≈ {formatBs(Number(formData.transportCost))}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -206,15 +223,22 @@ export default function GarmentForm({ id }: GarmentFormProps) {
                                 className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                             />
                         </div>
-                        <div className="w-full md:w-32 space-y-1">
+                        <div className="w-full md:w-32 space-y-1 relative group">
                             <label className="text-xs text-slate-400">Costo ($)</label>
                             <input
                                 type="number"
                                 placeholder="0.00"
-                                value={newMaterial.cost || ''}
-                                onChange={(e) => setNewMaterial(prev => ({ ...prev, cost: parseFloat(e.target.value) }))}
+                                value={newMaterial.cost === 0 ? '' : newMaterial.cost}
+                                onChange={(e) => setNewMaterial(prev => ({ ...prev, cost: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
                                 className="w-full px-3 py-2 rounded-lg border border-slate-700 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
                             />
+                            {newMaterial.cost > 0 && (
+                                <div className="md:absolute md:top-full md:right-0 md:pt-1 pointer-events-none mt-2 md:mt-0">
+                                    <p className="text-xs text-emerald-400 font-mono bg-slate-950/90 px-1 rounded border border-slate-800 shadow-xl z-10 text-right md:text-left">
+                                        ≈ {formatBs(Number(newMaterial.cost))}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <button
                             type="button"
