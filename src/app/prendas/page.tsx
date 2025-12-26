@@ -1,26 +1,23 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Edit, Trash, Shirt } from 'lucide-react';
 import { getGarments, deleteGarmentFromStorage, Garment } from '@/services/storage';
 import Swal from 'sweetalert2';
+import { useAuth } from "@/context/AuthContext";
+import { useExchangeRate } from "@/context/ExchangeRateContext";
+import BsBadge from "@/components/BsBadge";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useGarments } from "@/context/GarmentsContext";
 
 export default function PrendasPage() {
-    const [garments, setGarments] = useState<Garment[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { formatBs } = useExchangeRate();
+
+    // ✨ Usando contexto global - sin query redundante
+    const { garments, loading, refreshGarments } = useGarments();
+
     const [searchTerm, setSearchTerm] = useState('');
-
-    useEffect(() => {
-        loadGarments();
-    }, []);
-
-    async function loadGarments() {
-        setLoading(true);
-        const data = await getGarments();
-        setGarments(data);
-        setLoading(false);
-    }
 
     async function handleDelete(id: string) {
         const result = await Swal.fire({
@@ -36,8 +33,8 @@ export default function PrendasPage() {
         if (result.isConfirmed) {
             try {
                 await deleteGarmentFromStorage(id);
-                const newGarments = garments.filter(g => g.id !== id);
-                setGarments(newGarments);
+                // ✨ Refrescar desde contexto global
+                await refreshGarments();
                 Swal.fire('Eliminado!', 'La prenda ha sido eliminada.', 'success');
             } catch (error) {
                 Swal.fire('Error', 'No se pudo eliminar.', 'error');
@@ -45,8 +42,13 @@ export default function PrendasPage() {
         }
     }
 
-    const filteredGarments = garments.filter(g =>
-        g.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    // Debounce para optimizar búsqueda
+    const debouncedSearch = useDebounce(searchTerm, 300);
+
+    // useMemo para evitar recalcular filtro en cada render
+    const filteredGarments = useMemo(() =>
+        garments.filter(g => g.name?.toLowerCase().includes(debouncedSearch.toLowerCase())),
+        [garments, debouncedSearch]
     );
 
     return (
@@ -100,7 +102,12 @@ export default function PrendasPage() {
                                 {filteredGarments.map((garment) => (
                                     <tr key={garment.id} className="hover:bg-slate-950 transition-colors">
                                         <td className="px-6 py-4 font-medium text-slate-100">{garment.name}</td>
-                                        <td className="px-6 py-4 text-slate-400">${garment.price}</td>
+                                        <td className="px-6 py-4 text-slate-400">
+                                            <div className="flex flex-col">
+                                                <span>${garment.price}</span>
+                                                <BsBadge amount={Number(garment.price)} className="w-fit mt-0.5" />
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                                             <Link href={`/prendas/${garment.id}/editar`} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                                 <Edit size={18} />

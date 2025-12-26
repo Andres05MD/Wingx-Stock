@@ -5,19 +5,24 @@ import Link from 'next/link';
 import { Plus, Search, Edit, Trash, Package, Shirt } from 'lucide-react';
 import { getStockItems, deleteStockItem, StockItem, updateStockItem } from '@/services/storage';
 import Swal from 'sweetalert2';
+import { useAuth } from "@/context/AuthContext";
 
 export default function InventarioPage() {
+    const { role, user, loading: authLoading } = useAuth();
     const [items, setItems] = useState<StockItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        loadStock();
-    }, []);
+        if (!authLoading && user) {
+            loadStock();
+        }
+    }, [authLoading, user]);
 
     async function loadStock() {
+        if (!user?.uid) return;
         setLoading(true);
-        const data = await getStockItems();
+        const data = await getStockItems(role || undefined, user.uid);
         setItems(data);
         setLoading(false);
     }

@@ -4,6 +4,11 @@ import "./globals.css";
 import Shell from "@/components/Shell";
 import { AuthProvider } from "@/context/AuthContext";
 import { ExchangeRateProvider } from "@/context/ExchangeRateContext";
+import { OrdersProvider } from "@/context/OrdersContext";
+import { GarmentsProvider } from "@/context/GarmentsContext";
+import { ClientsProvider } from "@/context/ClientsContext";
+import { MaterialsProvider } from "@/context/MaterialsContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +27,17 @@ export default function RootLayout({
       <body className={`${inter.className} bg-slate-950 text-white`}>
         <AuthProvider>
           <ExchangeRateProvider>
-            <Shell>{children}</Shell>
+            <OrdersProvider>
+              <GarmentsProvider>
+                <ClientsProvider>
+                  <MaterialsProvider>
+                    <ErrorBoundary>
+                      <Shell>{children}</Shell>
+                    </ErrorBoundary>
+                  </MaterialsProvider>
+                </ClientsProvider>
+              </GarmentsProvider>
+            </OrdersProvider>
           </ExchangeRateProvider>
         </AuthProvider>
       </body>

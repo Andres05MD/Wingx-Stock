@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { saveStockItem, StockItem, Garment, getGarments } from "@/services/storage";
 import Swal from "sweetalert2";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Shirt, Package, Palette } from "lucide-react";
 import Link from "next/link";
 
 export default function NewStockPage() {
@@ -54,78 +54,96 @@ export default function NewStockPage() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100">Agregar al Stock</h1>
-                    <p className="text-slate-500 text-sm">Registrar nuevas prendas disponibles</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Agregar al Stock</h1>
+                    <p className="text-slate-400 text-sm mt-1">Registrar nuevas prendas disponibles para venta inmediata</p>
                 </div>
-                <Link href="/inventario" className="flex items-center text-slate-500 hover:text-slate-100 transition-colors">
-                    <ArrowLeft size={20} className="mr-1" /> Volver
+                <Link href="/inventario" className="flex items-center px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all text-sm font-medium">
+                    <ArrowLeft size={18} className="mr-2" /> Volver
                 </Link>
             </div>
 
-            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-none space-y-6">
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-300">Seleccionar Prenda</label>
-                    <select
-                        required
-                        value={garmentId}
-                        onChange={(e) => setGarmentId(e.target.value)}
-                        className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
-                    >
-                        <option value="">-- Seleccionar --</option>
-                        {garments.map(g => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-300">Talla</label>
+            <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 lg:p-8 space-y-8 shadow-2xl shadow-black/20">
+                <div className="space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-wider">
+                        <Shirt size={16} className="text-blue-500" /> Seleccionar Prenda
+                    </label>
+                    <div className="relative">
                         <select
-                            value={size}
-                            onChange={(e) => setSize(e.target.value)}
-                            className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                            required
+                            value={garmentId}
+                            onChange={(e) => setGarmentId(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white appearance-none cursor-pointer"
                         >
-                            {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => (
-                                <option key={s} value={s}>{s}</option>
+                            <option value="">-- Seleccionar --</option>
+                            {garments.map(g => (
+                                <option key={g.id} value={g.id} className="text-slate-900">{g.name}</option>
                             ))}
                         </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-300">Cantidad</label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                        <label className="flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-wider">
+                            Talla
+                        </label>
+                        <div className="relative">
+                            <select
+                                value={size}
+                                onChange={(e) => setSize(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white appearance-none cursor-pointer"
+                            >
+                                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                                    <option key={s} value={s} className="text-slate-900">{s}</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="space-y-3">
+                        <label className="flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-wider">
+                            <Package size={16} className="text-emerald-500" /> Cantidad
+                        </label>
                         <input
                             type="number"
                             min="1"
                             required
                             value={quantity}
                             onChange={(e) => setQuantity(parseInt(e.target.value))}
-                            className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                            className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white placeholder-slate-500"
                         />
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-300">Color (Opcional)</label>
+                <div className="space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-bold text-slate-300 uppercase tracking-wider">
+                        <Palette size={16} className="text-purple-500" /> Color / Variante (Opcional)
+                    </label>
                     <input
                         type="text"
                         placeholder="Ej. Rojo, Estampado floral"
                         value={color}
                         onChange={(e) => setColor(e.target.value)}
-                        className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500"
+                        className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-purple-500/50 focus:bg-black/40 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all text-white placeholder-slate-500"
                     />
                 </div>
             </div>
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-2">
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all flex items-center gap-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-600/20 hover:shadow-blue-600/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <Save size={20} />
+                    <Save size={22} />
                     {loading ? "Guardando..." : "Agregar al Stock"}
                 </button>
             </div>

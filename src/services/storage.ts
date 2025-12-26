@@ -1,5 +1,6 @@
 import { db, auth } from "@/lib/firebase";
 import { collection, addDoc, updateDoc, doc, getDoc, getDocs, deleteDoc, query, where, setDoc } from "firebase/firestore";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 // Interfaces
 export interface GarmentMaterial {
@@ -109,27 +110,31 @@ export const getCurrentUserRole = async (): Promise<'admin' | 'user'> => {
     return profile?.role || 'user';
 };
 
-export const getAllUsers = async (): Promise<UserProfile[]> => {
-    const role = await getCurrentUserRole();
-    if (role !== 'admin') return [];
+export const getAllUsers = async (role?: string): Promise<UserProfile[]> => {
+    const effectiveRole = role || await getCurrentUserRole();
+    if (effectiveRole !== 'admin') return [];
 
     const snapshot = await getDocs(collection(db, "users"));
     return snapshot.docs.map(doc => doc.data() as UserProfile);
 };
 
+export const resetUserPassword = async (email: string) => {
+    return sendPasswordResetEmail(auth, email);
+};
+
 
 // Generic Helper for RBAC Queries
-const getCollectionData = async (collectionName: string) => {
-    const userId = getUserId();
-    if (!userId) return [];
+const getCollectionData = async (collectionName: string, role?: string, userId?: string) => {
+    const uid = userId || getUserId();
+    if (!uid) return [];
 
-    const role = await getCurrentUserRole();
+    const effectiveRole = role || await getCurrentUserRole();
 
     let q;
-    if (role === 'admin') {
+    if (effectiveRole === 'admin') {
         q = collection(db, collectionName);
     } else {
-        q = query(collection(db, collectionName), where("ownerId", "==", userId));
+        q = query(collection(db, collectionName), where("ownerId", "==", uid));
     }
 
     const snapshot = await getDocs(q);
@@ -147,8 +152,8 @@ export const updateGarment = async (id: string, data: Partial<Garment>) => {
     return updateDoc(doc(db, "garments", id), data);
 };
 
-export const getGarments = async (): Promise<Garment[]> => {
-    return await getCollectionData("garments") as Garment[];
+export const getGarments = async (role?: string, userId?: string): Promise<Garment[]> => {
+    return await getCollectionData("garments", role, userId) as Garment[];
 };
 
 export const getGarmentById = async (id: string): Promise<Garment | null> => {
@@ -173,8 +178,8 @@ export const updateClient = async (id: string, data: Partial<Client>) => {
     return updateDoc(doc(db, "clients", id), data);
 };
 
-export const getClients = async (): Promise<Client[]> => {
-    return await getCollectionData("clients") as Client[];
+export const getClients = async (role?: string, userId?: string): Promise<Client[]> => {
+    return await getCollectionData("clients", role, userId) as Client[];
 };
 
 export const deleteClient = async (id: string) => {
@@ -193,8 +198,8 @@ export const updateOrder = async (id: string, data: Partial<Order>) => {
     return updateDoc(doc(db, "orders", id), data);
 };
 
-export const getOrders = async (): Promise<Order[]> => {
-    return await getCollectionData("orders") as Order[];
+export const getOrders = async (role?: string, userId?: string): Promise<Order[]> => {
+    return await getCollectionData("orders", role, userId) as Order[];
 };
 
 export const getOrder = async (id: string): Promise<Order | null> => {
@@ -214,8 +219,8 @@ export const saveMaterial = async (material: Material) => {
     return addDoc(collection(db, "materials"), { ...material, ownerId: userId, createdAt: new Date().toISOString() });
 };
 
-export const getMaterials = async (): Promise<Material[]> => {
-    return await getCollectionData("materials") as Material[];
+export const getMaterials = async (role?: string, userId?: string): Promise<Material[]> => {
+    return await getCollectionData("materials", role, userId) as Material[];
 };
 
 export const updateMaterial = async (id: string, data: Partial<Material>) => {
@@ -234,8 +239,8 @@ export const saveStockItem = async (item: StockItem) => {
     return addDoc(collection(db, "stock"), { ...item, ownerId: userId, createdAt: new Date().toISOString() });
 };
 
-export const getStockItems = async (): Promise<StockItem[]> => {
-    return await getCollectionData("stock") as StockItem[];
+export const getStockItems = async (role?: string, userId?: string): Promise<StockItem[]> => {
+    return await getCollectionData("stock", role, userId) as StockItem[];
 };
 
 export const updateStockItem = async (id: string, data: Partial<StockItem>) => {
@@ -253,8 +258,8 @@ export const saveEvent = async (event: CalendarEvent) => {
     return addDoc(collection(db, "events"), { ...event, ownerId: userId, createdAt: new Date().toISOString() });
 };
 
-export const getEvents = async (): Promise<CalendarEvent[]> => {
-    return await getCollectionData("events") as CalendarEvent[];
+export const getEvents = async (role?: string, userId?: string): Promise<CalendarEvent[]> => {
+    return await getCollectionData("events", role, userId) as CalendarEvent[];
 };
 
 export const deleteEvent = async (id: string) => {

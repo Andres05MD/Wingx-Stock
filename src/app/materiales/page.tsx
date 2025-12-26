@@ -5,9 +5,12 @@ import { Plus, Search, Trash, ShoppingCart, Check, X, DollarSign, Clock } from '
 import { getMaterials, saveMaterial, updateMaterial, deleteMaterial, Material } from '@/services/storage';
 import Swal from 'sweetalert2';
 import { useExchangeRate } from "@/context/ExchangeRateContext";
+import { useAuth } from "@/context/AuthContext";
+import BsBadge from "@/components/BsBadge";
 
 export default function MaterialesPage() {
     const { formatBs } = useExchangeRate();
+    const { role, user, loading: authLoading } = useAuth();
     const [materials, setMaterials] = useState<Material[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -24,12 +27,15 @@ export default function MaterialesPage() {
     });
 
     useEffect(() => {
-        loadMaterials();
-    }, []);
+        if (!authLoading && user) {
+            loadMaterials();
+        }
+    }, [authLoading, user]);
 
     async function loadMaterials() {
+        if (!user?.uid) return;
         setLoading(true);
-        const data = await getMaterials();
+        const data = await getMaterials(role || undefined, user.uid);
         // Sort: Pending first, then by date desc
         data.sort((a, b) => {
             if (a.purchased === b.purchased) {
@@ -44,7 +50,6 @@ export default function MaterialesPage() {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
-            ...prev,
             ...prev,
             [name]: name === 'price' ? (value === '' ? 0 : parseFloat(value)) : value
         }));
@@ -186,7 +191,7 @@ export default function MaterialesPage() {
                     <div>
                         <p className="text-sm text-slate-500">Costo Estimado</p>
                         <p className="text-xl font-bold text-slate-100">${totalCost.toFixed(2)}</p>
-                        <p className="text-xs text-blue-500 font-mono opacity-80">{formatBs(totalCost)}</p>
+                        <BsBadge amount={totalCost} className="mt-1 w-fit border-blue-500/20 bg-blue-500/10 text-blue-400" prefix="En Bs:" />
                     </div>
                 </div>
                 <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-none flex items-center gap-4">
@@ -227,12 +232,14 @@ export default function MaterialesPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold text-slate-300">Precio Estimado ($)</label>
-                                <input type="number" name="price" step="0.01" value={formData.price === 0 ? '' : formData.price} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
-                                {formData.price && formData.price > 0 && (
-                                    <p className="text-xs text-emerald-400 font-mono text-right mt-1">
-                                        ≈ {formatBs(Number(formData.price))}
-                                    </p>
-                                )}
+                                <div className="relative">
+                                    <input type="number" name="price" step="0.01" value={formData.price === 0 ? '' : formData.price} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500 pr-24" />
+                                    {formData.price && formData.price > 0 && (
+                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <BsBadge amount={Number(formData.price)} prefix="Bs" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold text-slate-300">Notas</label>
@@ -297,11 +304,9 @@ export default function MaterialesPage() {
                                                 <p className="text-sm text-slate-500">
                                                     {material.quantity && <span className="mr-2 border-r border-slate-600 pr-2">{material.quantity}</span>}
                                                     {material.price && material.price > 0 && (
-                                                        <span>
+                                                        <span className="flex items-center gap-2">
                                                             ${material.price.toFixed(2)}
-                                                            <span className="text-emerald-500/80 text-xs ml-1 font-mono">
-                                                                ({formatBs(material.price)})
-                                                            </span>
+                                                            <BsBadge amount={material.price} />
                                                         </span>
                                                     )}
                                                 </p>

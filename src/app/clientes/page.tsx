@@ -1,29 +1,22 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Edit, Trash, Users, Phone, FileText } from 'lucide-react';
 import { getClients, deleteClient, Client } from '@/services/storage';
 import Swal from 'sweetalert2';
 import ClientForm from '@/components/ClientForm';
+import { useAuth } from "@/context/AuthContext";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useClients } from "@/context/ClientsContext";
 
 export default function ClientesPage() {
-    const [clients, setClients] = useState<Client[]>([]);
-    const [loading, setLoading] = useState(true);
+    // ✨ Usando contexto global - sin query redundante
+    const { clients, loading, refreshClients } = useClients();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingClient, setEditingClient] = useState<Client | undefined>(undefined);
-
-    useEffect(() => {
-        loadClients();
-    }, []);
-
-    async function loadClients() {
-        setLoading(true);
-        const data = await getClients();
-        setClients(data);
-        setLoading(false);
-    }
 
     async function handleDelete(id: string) {
         const result = await Swal.fire({
@@ -39,8 +32,8 @@ export default function ClientesPage() {
         if (result.isConfirmed) {
             try {
                 await deleteClient(id);
-                const newClients = clients.filter(c => c.id !== id);
-                setClients(newClients);
+                // ✨ Refrescar desde contexto global
+                await refreshClients();
                 Swal.fire('Eliminado!', 'El cliente ha sido eliminado.', 'success');
             } catch (error) {
                 Swal.fire('Error', 'No se pudo eliminar.', 'error');
@@ -60,12 +53,20 @@ export default function ClientesPage() {
 
     const handleFormSuccess = () => {
         setIsFormOpen(false);
-        loadClients();
+        // ✨ Refrescar desde contexto global
+        refreshClients();
     };
 
-    const filteredClients = clients.filter(c =>
-        c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.phone?.includes(searchTerm)
+    // Debounce para optimizar búsqueda
+    const debouncedSearch = useDebounce(searchTerm, 300);
+
+    // useMemo para evitar recalcular filtro en cada render
+    const filteredClients = useMemo(() =>
+        clients.filter(c =>
+            c.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            c.phone?.includes(debouncedSearch)
+        ),
+        [clients, debouncedSearch]
     );
 
     return (

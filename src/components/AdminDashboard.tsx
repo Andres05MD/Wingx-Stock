@@ -1,94 +1,94 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { getAllUsers, getOrders, UserProfile, Order } from '@/services/storage';
-import { Users, ClipboardList, DollarSign, TrendingUp, Search, Lock, Shirt } from 'lucide-react';
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
+import { getAllUsers, resetUserPassword, getOrders, Order, UserProfile } from "@/services/storage";
+import { Users, ClipboardList, TrendingUp, DollarSign, Shirt, Search, Lock, ShieldCheckIcon } from "lucide-react";
 import Swal from 'sweetalert2';
 import { useExchangeRate } from "@/context/ExchangeRateContext";
+import BsBadge from "./BsBadge";
 
 export default function AdminDashboard() {
+    const { user, role } = useAuth();
     const { formatBs } = useExchangeRate();
-    const [users, setUsers] = useState<UserProfile[]>([]);
+    // Extended type for local state
+    const [usersWithStats, setUsersWithStats] = useState<(UserProfile & { totalOrders: number; totalRevenue: number })[]>([]);
     const [orders, setOrders] = useState<Order[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                const [usersData, ordersData] = await Promise.all([getAllUsers(), getOrders()]);
-                setUsers(usersData);
-                setOrders(ordersData);
-            } catch (error) {
-                console.error("Error loading admin data", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
-    }, []);
+        if (role === 'admin') {
+            fetchAdminData();
+        }
+    }, [role]);
 
-    // Password Reset Handler
+    async function fetchAdminData() {
+        setLoading(true);
+        try {
+            const [usersData, ordersData] = await Promise.all([
+                getAllUsers(),
+                getOrders()
+            ]);
+
+            // Calculate stats for each user
+            const usersWithStatsData = usersData.map(u => {
+                const userOrders = ordersData.filter(o => o.ownerId === u.uid);
+                const totalRevenue = userOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+                return {
+                    ...u,
+                    totalOrders: userOrders.length,
+                    totalRevenue
+                };
+            });
+
+            setUsersWithStats(usersWithStatsData);
+            setOrders(ordersData);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const handleResetPassword = async (email: string) => {
         const result = await Swal.fire({
             title: '¿Resetear Contraseña?',
-            text: `Se enviará un correo a ${email} para restablecer su contraseña.`,
-            icon: 'warning',
+            text: `Se enviará un correo a ${email}`,
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#3b82f6',
-            cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Sí, enviar correo',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: 'Enviar Correo'
         });
 
         if (result.isConfirmed) {
             try {
-                await sendPasswordResetEmail(auth, email);
-                Swal.fire('Enviado', 'El correo de restablecimiento ha sido enviado.', 'success');
+                await resetUserPassword(email);
+                Swal.fire('Enviado', 'Correo de recuperación enviado.', 'success');
             } catch (error) {
-                console.error(error);
                 Swal.fire('Error', 'No se pudo enviar el correo.', 'error');
             }
         }
     };
 
-    // Calculate metrics per user
-    const userMetrics = users.map(user => {
-        const userOrders = orders.filter(o => o.ownerId === user.uid);
-        const totalOrders = userOrders.length;
-        const pendingOrders = userOrders.filter(o => o.status !== 'Entregado').length;
-        const totalRevenue = userOrders.reduce((sum, o) => sum + (o.price || 0), 0);
-
-        return {
-            ...user,
-            totalOrders,
-            pendingOrders,
-            totalRevenue
-        };
-    });
-
-    const filteredUsers = userMetrics.filter(user =>
-        (user.displayName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const totalSystemOrders = orders.length;
+    // Calculate Stats
     const totalSystemRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
-    const averageRevenuePerUser = users.length > 0 ? totalSystemRevenue / users.length : 0;
+    const totalSystemOrders = orders.length;
+    const averageRevenuePerUser = usersWithStats.length > 0 ? totalSystemRevenue / usersWithStats.length : 0;
 
-    // Top Products
-    const productStats = orders.reduce((acc, order) => {
-        const name = order.garmentName || 'Desconocido';
-        acc[name] = (acc[name] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
-
-    const topProducts = Object.entries(productStats)
+    // Determine Top Products (using all orders)
+    const productCounts: Record<string, number> = {};
+    orders.forEach(o => {
+        productCounts[o.garmentName] = (productCounts[o.garmentName] || 0) + 1;
+    });
+    const topProducts = Object.entries(productCounts)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 5);
+
+    // Filter Users
+    const filteredUsers = usersWithStats.filter(u =>
+        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (u.displayName && u.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
     if (loading) {
         return <div className="p-8 text-slate-400">Cargando panel de administración...</div>;
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard icon={Users} label="Usuarios Totales" value={users.length} color="blue" />
+                <StatCard icon={Users} label="Usuarios Totales" value={usersWithStats.length} color="blue" />
                 <StatCard icon={ClipboardList} label="Pedidos Totales" value={totalSystemOrders} color="indigo" />
                 <StatCard
                     icon={DollarSign}
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
                     value={
                         <div className="flex flex-col">
                             <span>${totalSystemRevenue.toFixed(2)}</span>
-                            <span className="text-xs opacity-70 font-mono font-normal">{formatBs(totalSystemRevenue)}</span>
+                            <BsBadge amount={totalSystemRevenue} className="mt-0.5 w-fit" />
                         </div>
                     }
                     color="emerald"
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
                     value={
                         <div className="flex flex-col">
                             <span>${averageRevenuePerUser.toFixed(2)}</span>
-                            <span className="text-xs opacity-70 font-mono font-normal">{formatBs(averageRevenuePerUser)}</span>
+                            <BsBadge amount={averageRevenuePerUser} className="bg-amber-500/10 text-amber-500 border-amber-500/20 mt-0.5 w-fit" />
                         </div>
                     }
                     color="amber"
@@ -201,11 +201,11 @@ export default function AdminDashboard() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <div className="flex flex-col gap-1">
+                                                <div className="flex flex-col gap-1 items-end">
                                                     <span className="text-xs text-slate-300"><b>{user.totalOrders}</b> Pedidos</span>
                                                     <span className="text-xs text-emerald-400 flex flex-col items-end">
                                                         <span><b>${user.totalRevenue.toFixed(0)}</b> Gen.</span>
-                                                        <span className="text-[10px] opacity-70 font-mono text-emerald-500/70">{formatBs(user.totalRevenue)}</span>
+                                                        <BsBadge amount={user.totalRevenue} className="mt-0.5 w-fit" />
                                                     </span>
                                                 </div>
                                             </td>
@@ -259,22 +259,4 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any, label: strin
             </div>
         </div>
     );
-}
-
-function ShieldCheckIcon({ className }: { className?: string }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`w-8 h-8 ${className}`}
-        >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-            <path d="m9 12 2 2 4-4" />
-        </svg>
-    )
 }

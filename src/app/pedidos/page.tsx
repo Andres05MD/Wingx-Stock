@@ -5,20 +5,28 @@ import Link from 'next/link';
 import { Plus, Search, Edit, Trash, ClipboardList, Filter } from 'lucide-react';
 import { getOrders, deleteOrder, Order, updateOrder } from '@/services/storage';
 import Swal from 'sweetalert2';
+import { useAuth } from "@/context/AuthContext";
+import { useExchangeRate } from "@/context/ExchangeRateContext";
+import BsBadge from "@/components/BsBadge";
 
 export default function PedidosPage() {
+    const { role, user, loading: authLoading } = useAuth();
+    const { formatBs } = useExchangeRate();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
 
     useEffect(() => {
-        loadOrders();
-    }, []);
+        if (!authLoading && user) {
+            loadOrders();
+        }
+    }, [authLoading, user]);
 
     async function loadOrders() {
+        if (!user?.uid) return;
         setLoading(true);
-        const data = await getOrders();
+        const data = await getOrders(role || undefined, user.uid);
         // Sort by date desc
         data.sort((a, b) => (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime()));
         setOrders(data);
@@ -245,6 +253,9 @@ export default function PedidosPage() {
                                                     {balance > 0 ? `$${balance.toFixed(2)}` : 'Pagado'}
                                                 </p>
                                                 {balance > 0 && (
+                                                    <BsBadge amount={balance} className="bg-rose-500/10 text-rose-300 border-rose-500/20" />
+                                                )}
+                                                {balance > 0 && (
                                                     <button
                                                         onClick={() => order.id && handlePayRemaining(order)}
                                                         className="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded transition-colors"
@@ -255,20 +266,20 @@ export default function PedidosPage() {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="pt-3 border-t border-slate-800/50">
-                                    <select
-                                        value={order.status}
-                                        onChange={(e) => order.id && handleStatusChange(order.id, e.target.value)}
-                                        className={`w-full py-1.5 px-3 rounded-lg text-sm font-medium outline-none cursor-pointer transition-colors ${getBadgeColor(order.status)}`}
-                                    >
-                                        <option value="Sin Comenzar">Sin Comenzar</option>
-                                        <option value="Pendiente">Pendiente</option>
-                                        <option value="En Proceso">En Proceso</option>
-                                        <option value="Entregado">Entregado</option>
-                                        <option value="Finalizado">Finalizado</option>
-                                    </select>
+                                    <div className="pt-3 border-t border-slate-800/50">
+                                        <select
+                                            value={order.status}
+                                            onChange={(e) => order.id && handleStatusChange(order.id, e.target.value)}
+                                            className={`w-full py-1.5 px-3 rounded-lg text-sm font-medium outline-none cursor-pointer transition-colors ${getBadgeColor(order.status)}`}
+                                        >
+                                            <option value="Sin Comenzar">Sin Comenzar</option>
+                                            <option value="Pendiente">Pendiente</option>
+                                            <option value="En Proceso">En Proceso</option>
+                                            <option value="Entregado">Entregado</option>
+                                            <option value="Finalizado">Finalizado</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         );
