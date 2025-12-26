@@ -274,11 +274,12 @@ export default function MaterialesPage() {
                                         type="number"
                                         name="price"
                                         step="0.01"
+                                        placeholder="0.00"
                                         value={formData.price === 0 ? '' : formData.price}
                                         onChange={handleInputChange}
                                         className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
                                     />
-                                    {formData.price && formData.price > 0 && (
+                                    {(formData.price ?? 0) > 0 && (
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             <BsBadge amount={Number(formData.price)} className="text-xs" />
                                         </div>
@@ -372,10 +373,10 @@ export default function MaterialesPage() {
                                                 <h3 className={`font-bold text-slate-100 ${material.purchased ? 'line-through text-slate-500' : ''}`}>{material.name}</h3>
                                                 <p className="text-sm text-slate-500">
                                                     {material.quantity && <span className="mr-2 border-r border-slate-600 pr-2">{material.quantity}</span>}
-                                                    {material.price && material.price > 0 && (
+                                                    {(material.price ?? 0) > 0 && (
                                                         <span className="flex items-center gap-2">
-                                                            ${material.price.toFixed(2)}
-                                                            <BsBadge amount={material.price} />
+                                                            ${material.price!.toFixed(2)}
+                                                            <BsBadge amount={material.price!} />
                                                         </span>
                                                     )}
                                                 </p>
