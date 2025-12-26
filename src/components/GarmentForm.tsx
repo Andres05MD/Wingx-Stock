@@ -173,12 +173,13 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                         name="price"
                                         step="0.01"
                                         required
+                                        placeholder="0.00"
                                         value={formData.price === 0 ? '' : formData.price}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
+                                        className="w-full pl-10 pr-28 md:pr-32 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg placeholder-slate-600"
                                     />
                                     {(formData.price ?? 0) > 0 && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:block">
                                             <BsBadge amount={Number(formData.price)} className="text-xs" />
                                         </div>
                                     )}
@@ -197,12 +198,13 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                         type="number"
                                         name="laborCost"
                                         step="0.01"
+                                        placeholder="0.00"
                                         value={formData.laborCost === 0 ? '' : formData.laborCost}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-amber-500/50 focus:bg-black/40 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all text-white font-mono text-lg"
+                                        className="w-full pl-10 pr-28 md:pr-32 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-amber-500/50 focus:bg-black/40 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all text-white font-mono text-lg placeholder-slate-600"
                                     />
                                     {(formData.laborCost ?? 0) > 0 && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:block">
                                             <BsBadge amount={Number(formData.laborCost)} className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-xs" />
                                         </div>
                                     )}
@@ -221,12 +223,13 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                         type="number"
                                         name="transportCost"
                                         step="0.01"
+                                        placeholder="0.00"
                                         value={formData.transportCost === 0 ? '' : formData.transportCost}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white font-mono text-lg"
+                                        className="w-full pl-10 pr-28 md:pr-32 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white font-mono text-lg placeholder-slate-600"
                                     />
                                     {(formData.transportCost ?? 0) > 0 && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:block">
                                             <BsBadge amount={Number(formData.transportCost)} className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs" />
                                         </div>
                                     )}
@@ -255,10 +258,10 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                         </div>
 
                         {/* Add Material Form */}
-                        <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-2xl p-6 border border-white/10 mb-6">
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-2xl p-4 md:p-6 border border-white/10 mb-6">
+                            <div className="grid grid-cols-1 gap-4">
                                 {/* Material Name */}
-                                <div className="md:col-span-5 space-y-2">
+                                <div className="space-y-2">
                                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                         Material
                                     </label>
@@ -271,53 +274,54 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                     />
                                 </div>
 
-                                {/* Quantity */}
-                                <div className="md:col-span-3 space-y-2">
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Cantidad
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="2m, 10 unid..."
-                                        value={newMaterial.quantity}
-                                        onChange={(e) => setNewMaterial(prev => ({ ...prev, quantity: e.target.value }))}
-                                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500"
-                                    />
-                                </div>
-
-                                {/* Cost */}
-                                <div className="md:col-span-3 space-y-2">
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Costo ($)
-                                    </label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* Quantity */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                            Cantidad
+                                        </label>
                                         <input
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="0.00"
-                                            value={newMaterial.cost === 0 ? '' : newMaterial.cost}
-                                            onChange={(e) => setNewMaterial(prev => ({ ...prev, cost: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
-                                            className="w-full pl-7 pr-24 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white placeholder-slate-500 font-mono"
+                                            type="text"
+                                            placeholder="2m..."
+                                            value={newMaterial.quantity}
+                                            onChange={(e) => setNewMaterial(prev => ({ ...prev, quantity: e.target.value }))}
+                                            className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500"
                                         />
-                                        {newMaterial.cost > 0 && (
-                                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                                                <BsBadge amount={Number(newMaterial.cost)} className="text-[10px]" />
-                                            </div>
-                                        )}
+                                    </div>
+
+                                    {/* Cost */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                            Costo ($)
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                value={newMaterial.cost === 0 ? '' : newMaterial.cost}
+                                                onChange={(e) => setNewMaterial(prev => ({ ...prev, cost: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
+                                                className="w-full pl-7 pr-3 md:pr-24 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white placeholder-slate-600 font-mono"
+                                            />
+                                            {newMaterial.cost > 0 && (
+                                                <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:block">
+                                                    <BsBadge amount={Number(newMaterial.cost)} className="text-[10px]" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Add Button */}
-                                <div className="md:col-span-1 flex items-end">
-                                    <button
-                                        type="button"
-                                        onClick={addMaterial}
-                                        className="w-full h-[44px] flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-105"
-                                    >
-                                        <Plus className="w-5 h-5" />
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={addMaterial}
+                                    className="w-full md:w-auto md:ml-auto px-6 h-[44px] flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-105 font-semibold"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    <span>Agregar Material</span>
+                                </button>
                             </div>
                         </div>
 
