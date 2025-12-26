@@ -238,75 +238,86 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                         </div>
                     </div>
 
-                    {/* Materials Card */}
-                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20">
-                        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                                <Package className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <h2 className="text-xl font-bold text-white">Materiales Requeridos</h2>
-                                <p className="text-sm text-slate-400 mt-0.5">Agrega los materiales necesarios para esta prenda</p>
+                    {/* Materials Card - COMPLETAMENTE REDISEÑADO */}
+                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-6 md:p-8 shadow-2xl shadow-black/20">
+                        {/* Header */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shrink-0">
+                                    <Package className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-white">Materiales</h2>
+                                    <p className="text-sm text-slate-400">Lista de insumos necesarios</p>
+                                </div>
                             </div>
                             {formData.materials && formData.materials.length > 0 && (
-                                <div className="px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                                    <p className="text-sm font-mono font-bold text-cyan-400">
-                                        Total: ${totalMaterialsCost.toFixed(2)}
-                                    </p>
+                                <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                                    <div className="flex flex-col items-end">
+                                        <p className="text-xs text-cyan-300 font-medium">{formData.materials.length} material{formData.materials.length !== 1 ? 'es' : ''}</p>
+                                        <p className="text-sm font-mono font-bold text-cyan-400">
+                                            {totalMaterialsCost > 0 ? `$${totalMaterialsCost.toFixed(2)}` : 'Sin costo'}
+                                        </p>
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* Add Material Form */}
-                        <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-2xl p-4 md:p-6 border border-white/10 mb-6">
-                            <div className="grid grid-cols-1 gap-4">
-                                {/* Material Name */}
+                        {/* Add Material Form - Optimizado */}
+                        <div className="bg-gradient-to-br from-black/20 to-black/30 rounded-2xl p-5 border border-white/5 mb-6">
+                            <div className="space-y-4">
+                                {/* Material Name - Full Width */}
                                 <div className="space-y-2">
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Material
+                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                        <Package className="w-3.5 h-3.5 text-cyan-400" />
+                                        Nombre del Material
                                     </label>
                                     <input
                                         type="text"
-                                        placeholder="Ej. Tela, Botones, Hilo..."
+                                        placeholder="Ej. Tela de algodón, Botones dorados, Hilo negro..."
                                         value={newMaterial.name}
                                         onChange={(e) => setNewMaterial(prev => ({ ...prev, name: e.target.value }))}
-                                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all text-white placeholder-slate-500 font-medium"
+                                        className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-cyan-500/50 focus:bg-white/10 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all text-white placeholder-slate-500 font-medium"
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                {/* Quantity and Cost - Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Quantity */}
                                     <div className="space-y-2">
-                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                        <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                            <span className="w-3.5 h-3.5 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">#</span>
                                             Cantidad
                                         </label>
                                         <input
                                             type="text"
-                                            placeholder="2m..."
+                                            placeholder="Ej. 2 metros, 10 unidades, 1 rollo..."
                                             value={newMaterial.quantity}
                                             onChange={(e) => setNewMaterial(prev => ({ ...prev, quantity: e.target.value }))}
-                                            className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500"
+                                            className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/10 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-white placeholder-slate-500"
                                         />
                                     </div>
 
                                     {/* Cost */}
                                     <div className="space-y-2">
-                                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                            Costo ($)
+                                        <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                            <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                                            Costo Unitario
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-mono">$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 placeholder="0.00"
                                                 value={newMaterial.cost === 0 ? '' : newMaterial.cost}
                                                 onChange={(e) => setNewMaterial(prev => ({ ...prev, cost: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
-                                                className="w-full pl-7 pr-3 md:pr-24 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white placeholder-slate-600 font-mono"
+                                                className="w-full pl-9 pr-3 py-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:bg-white/10 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all text-white placeholder-slate-500 font-mono"
                                             />
                                             {newMaterial.cost > 0 && (
-                                                <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:block">
-                                                    <BsBadge amount={Number(newMaterial.cost)} className="text-[10px]" />
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:block">
+                                                    <BsBadge amount={Number(newMaterial.cost)} className="text-[9px]" />
                                                 </div>
                                             )}
                                         </div>
@@ -317,7 +328,8 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                 <button
                                     type="button"
                                     onClick={addMaterial}
-                                    className="w-full md:w-auto md:ml-auto px-6 h-[44px] flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-105 font-semibold"
+                                    disabled={!newMaterial.name.trim()}
+                                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-semibold transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 disabled:shadow-none hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     <span>Agregar Material</span>
@@ -325,50 +337,68 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                             </div>
                         </div>
 
-                        {/* Materials List */}
+                        {/* Materials List - Rediseñado */}
                         {formData.materials && formData.materials.length > 0 ? (
-                            <div className="space-y-3">
-                                {formData.materials.map((material, index) => (
-                                    <div
-                                        key={index}
-                                        className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-white/5 hover:border-cyan-500/30 hover:bg-white/10 transition-all duration-300"
-                                    >
-                                        <div className="flex items-center gap-4 flex-1">
-                                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-400"></div>
-                                            <div>
-                                                <p className="font-semibold text-white">{material.name}</p>
-                                                {material.quantity && (
-                                                    <p className="text-sm text-slate-400">{material.quantity}</p>
-                                                )}
+                            <div className="space-y-2">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                                    Materiales Agregados ({formData.materials.length})
+                                </p>
+                                <div className="space-y-2">
+                                    {formData.materials.map((material, index) => (
+                                        <div
+                                            key={index}
+                                            className="group relative flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/5 hover:border-cyan-500/30 hover:from-white/[0.06] transition-all duration-300"
+                                        >
+                                            {/* Material Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-400 mt-2 shrink-0"></div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold text-white truncate">{material.name}</p>
+                                                        <div className="flex items-center gap-3 mt-1">
+                                                            {material.quantity && (
+                                                                <span className="text-sm text-slate-400 flex items-center gap-1">
+                                                                    <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                                                                    {material.quantity}
+                                                                </span>
+                                                            )}
+                                                            {material.cost > 0 ? (
+                                                                <span className="text-sm font-mono font-bold text-cyan-400 flex items-center gap-1">
+                                                                    <span className="w-1 h-1 rounded-full bg-cyan-600"></span>
+                                                                    ${material.cost.toFixed(2)}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-sm text-slate-500 italic flex items-center gap-1">
+                                                                    <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                                                                    Sin costo
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-right">
-                                                {material.cost > 0 ? (
-                                                    <>
-                                                        <p className="font-mono font-bold text-cyan-400">${material.cost.toFixed(2)}</p>
-                                                        <BsBadge amount={material.cost} className="text-[9px] mt-1" />
-                                                    </>
-                                                ) : (
-                                                    <p className="text-sm text-slate-500 italic">Sin costo</p>
-                                                )}
-                                            </div>
+
+                                            {/* Delete Button */}
                                             <button
                                                 type="button"
                                                 onClick={() => removeMaterial(index)}
-                                                className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                                className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 opacity-0 md:group-hover:opacity-100 md:opacity-0 opacity-100 transition-all duration-200"
+                                                title="Eliminar material"
                                             >
                                                 <Trash className="w-4 h-4" />
                                             </button>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         ) : (
-                            <div className="text-center py-12">
-                                <Package className="w-16 h-16 mx-auto text-slate-700 mb-4" />
-                                <p className="text-slate-500 font-medium">No hay materiales agregados</p>
-                                <p className="text-slate-600 text-sm mt-1">Usa el formulario arriba para agregar materiales</p>
+                            <div className="text-center py-12 px-4">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800/50 mb-4">
+                                    <Package className="w-8 h-8 text-slate-600" />
+                                </div>
+                                <p className="text-slate-400 font-medium mb-1">No hay materiales agregados</p>
+                                <p className="text-sm text-slate-500">Usa el formulario arriba para añadir los insumos necesarios</p>
                             </div>
                         )}
                     </div>
@@ -390,7 +420,7 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                             <div className="flex items-center justify-between pb-3 border-b border-white/10">
                                 <span className="text-slate-400 font-medium">Precio de Venta</span>
                                 <span className="text-white font-mono font-bold text-lg">
-                                    {(formData.price || 0) > 0 ? `$${formData.price.toFixed(2)}` : '—'}
+                                    {(formData.price || 0) > 0 ? `$${(formData.price || 0).toFixed(2)}` : '—'}
                                 </span>
                             </div>
 
@@ -410,7 +440,7 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-slate-400">• Mano de Obra</span>
                                     <span className="text-amber-400 font-mono">
-                                        {(formData.laborCost || 0) > 0 ? `-$${formData.laborCost.toFixed(2)}` : '—'}
+                                        {(formData.laborCost || 0) > 0 ? `-$${(formData.laborCost || 0).toFixed(2)}` : '—'}
                                     </span>
                                 </div>
 
@@ -418,7 +448,7 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-slate-400">• Transporte</span>
                                     <span className="text-blue-400 font-mono">
-                                        {(formData.transportCost || 0) > 0 ? `-$${formData.transportCost.toFixed(2)}` : '—'}
+                                        {(formData.transportCost || 0) > 0 ? `-$${(formData.transportCost || 0).toFixed(2)}` : '—'}
                                     </span>
                                 </div>
 
@@ -441,8 +471,8 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                 <span className="text-white font-bold text-lg">Ganancia Estimada</span>
                                 <div className="text-right">
                                     <p className={`text-2xl font-bold font-mono ${estimatedProfit > 0 ? 'text-emerald-400' :
-                                            estimatedProfit < 0 ? 'text-red-400' :
-                                                'text-slate-400'
+                                        estimatedProfit < 0 ? 'text-red-400' :
+                                            'text-slate-400'
                                         }`}>
                                         {estimatedProfit !== 0 ? `$${estimatedProfit.toFixed(2)}` : '—'}
                                     </p>
