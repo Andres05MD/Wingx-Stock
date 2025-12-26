@@ -68,20 +68,20 @@ export default function StatsGrid({ loading, realIncome, pendingPayments, active
 
 function StatCard({ title, value, loading, formatValue, secondaryValue, icon: Icon, iconColor, gradient, borderColor }: any) {
     return (
-        <div className={`relative p-5 rounded-3xl border border-white/5 bg-gradient-to-br ${gradient} backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${borderColor}`}>
+        <div className={`relative p-5 rounded-3xl border border-white/10 bg-gradient-to-br ${gradient} backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 ${borderColor} shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20`}>
             <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/5 ${iconColor}`}>
+                <div className={`p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 ${iconColor} shadow-inner shadow-black/20`}>
                     <Icon size={24} />
                 </div>
                 {/* Optional decorative element */}
-                <div className={`w-16 h-16 rounded-full blur-2xl absolute -top-4 -right-4 opacity-20 bg-current ${iconColor}`} />
+                <div className={`w-20 h-20 rounded-full blur-3xl absolute -top-10 -right-10 opacity-30 bg-current ${iconColor}`} />
             </div>
 
-            <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 opacity-80">{title}</p>
+            <div className="relative z-10">
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 opacity-90">{title}</p>
                 <p className="text-2xl font-bold text-white tracking-tight">
                     {loading ? (
-                        <span className="inline-block w-20 h-8 bg-white/10 rounded animate-pulse" />
+                        <span className="inline-block w-24 h-8 bg-white/10 rounded-lg animate-pulse" />
                     ) : (
                         <>
                             {formatValue ? '$' : ''}{Number(value).toLocaleString(undefined, { minimumFractionDigits: formatValue ? 2 : 0 })}
@@ -89,9 +89,9 @@ function StatCard({ title, value, loading, formatValue, secondaryValue, icon: Ic
                     )}
                 </p>
                 {secondaryValue && !loading && (
-                    <div className={`mt-2 flex items-center gap-1.5 bg-black/20 px-2 py-1 rounded-lg border border-white/5 w-fit ${iconColor}`}>
-                        <span className="text-[9px] uppercase opacity-70">En Bs:</span>
-                        <span className="text-[10px] font-mono font-bold tracking-tight">{secondaryValue}</span>
+                    <div className={`mt-2 flex items-center gap-1.5 bg-black/20 px-2.5 py-1 rounded-lg border border-white/10 w-fit ${iconColor}`}>
+                        <span className="text-[10px] font-bold opacity-70">Bs:</span>
+                        <span className="text-xs font-mono font-bold tracking-tight">{secondaryValue}</span>
                     </div>
                 )}
             </div>

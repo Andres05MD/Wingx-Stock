@@ -154,62 +154,80 @@ export default function MaterialesPage() {
     const purchasedCount = materials.filter(m => m.purchased).length;
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                        <ShoppingCart className="text-blue-600" /> Lista de Materiales
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                            <ShoppingCart className="w-6 h-6 text-white" />
+                        </div>
+                        Lista de Materiales
                     </h1>
-                    <p className="text-slate-500 text-sm">Gestiona tus compras y suministros</p>
+                    <p className="text-slate-400 text-sm mt-1 ml-13">Gestiona tus compras y suministros</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     {purchasedCount > 0 && (
                         <button
                             onClick={handleDeletePurchased}
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors"
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all"
                         >
-                            <Trash size={20} />
-                            Eliminar Listos
+                            <Trash size={18} />
+                            <span className="hidden md:inline">Limpiar Listos</span>
                         </button>
                     )}
                     <button
                         onClick={() => setShowForm(!showForm)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-blue-600/20"
+                        className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:scale-105"
                     >
-                        {showForm ? <X size={20} /> : <Plus size={20} />}
-                        {showForm ? 'Cancelar' : 'Agregar Material'}
+                        {showForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />}
+                        <span>{showForm ? 'Cancelar' : 'Agregar Material'}</span>
                     </button>
                 </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-none flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                        <DollarSign size={24} />
-                    </div>
-                    <div>
-                        <p className="text-sm text-slate-500">Costo Estimado</p>
-                        <p className="text-xl font-bold text-slate-100">${totalCost.toFixed(2)}</p>
-                        <BsBadge amount={totalCost} className="mt-1 w-fit border-blue-500/20 bg-blue-500/10 text-blue-400" prefix="En Bs:" />
-                    </div>
-                </div>
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-none flex items-center gap-4">
-                    <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                        <Clock size={24} />
-                    </div>
-                    <div>
-                        <p className="text-sm text-slate-500">Pendientes</p>
-                        <p className="text-xl font-bold text-slate-100">{pendingCount}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="relative overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.01] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg shadow-black/10">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shadow-inner shadow-blue-500/10">
+                            <DollarSign size={28} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Costo Estimado</p>
+                            <p className="text-2xl font-bold text-white">${totalCost.toFixed(2)}</p>
+                            <div className="mt-1">
+                                <BsBadge amount={totalCost} className="text-[10px] bg-blue-500/10 text-blue-300 border-blue-500/20" prefix="En Bs:" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-none flex items-center gap-4">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                        <Check size={24} />
+
+                <div className="relative overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.01] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg shadow-black/10">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 shadow-inner shadow-amber-500/10">
+                            <Clock size={28} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pendientes</p>
+                            <p className="text-2xl font-bold text-white">{pendingCount}</p>
+                            <p className="text-xs text-slate-500 mt-1">Artículos por comprar</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-sm text-slate-500">Comprados</p>
-                        <p className="text-xl font-bold text-slate-100">{purchasedCount}</p>
+                </div>
+
+                <div className="relative overflow-hidden bg-gradient-to-br from-white/[0.05] to-white/[0.01] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg shadow-black/10">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 shadow-inner shadow-emerald-500/10">
+                            <Check size={28} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Comprados</p>
+                            <p className="text-2xl font-bold text-white">{purchasedCount}</p>
+                            <p className="text-xs text-slate-500 mt-1">Artículos listos</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,7 +236,7 @@ export default function MaterialesPage() {
             {showForm && (
                 <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20 animate-in slide-in-from-top-4 fade-in duration-300">
                     <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Plus className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1">
@@ -303,7 +321,7 @@ export default function MaterialesPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-4">
+                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
                             <button
                                 type="button"
                                 onClick={() => setShowForm(false)}
@@ -324,24 +342,34 @@ export default function MaterialesPage() {
             )}
 
             {/* Search */}
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input
-                    type="text"
-                    placeholder="Buscar material..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-none bg-slate-950 text-white placeholder-slate-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-lg shadow-black/10">
+                <div className="relative max-w-xl">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Buscar material..."
+                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             {/* List */}
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {loading ? (
-                    <div className="p-8 text-center text-slate-400">Cargando materiales...</div>
+                    <div className="p-12 text-center text-slate-400">
+                        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        Cargando materiales...
+                    </div>
                 ) : filteredMaterials.length === 0 ? (
-                    <div className="p-8 text-center text-slate-400">
-                        {searchTerm ? 'No se encontraron resultados.' : 'No hay materiales en la lista.'}
+                    <div className="p-12 text-center">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <ShoppingCart className="w-8 h-8 text-slate-600" />
+                        </div>
+                        <p className="text-slate-400 font-medium text-lg">
+                            {searchTerm ? 'No se encontraron resultados.' : 'No hay materiales en la lista.'}
+                        </p>
                     </div>
                 ) : (
                     // Grouping Logic
@@ -355,37 +383,44 @@ export default function MaterialesPage() {
                             return groups;
                         }, {} as Record<string, Material[]>)
                     ).map(([source, groupMaterials]) => (
-                        <div key={source} className="space-y-3">
-                            <h3 className="text-slate-400 font-semibold text-sm uppercase tracking-wider pl-1 border-l-4 border-blue-600">
+                        <div key={source} className="space-y-4 animate-in slide-in-from-bottom-2 fade-in duration-500">
+                            <h3 className="flex items-center gap-3 text-slate-300 font-bold text-sm uppercase tracking-wider pl-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 ring-4 ring-blue-500/20"></span>
                                 {source}
                             </h3>
                             <div className="space-y-3">
                                 {groupMaterials.map((material) => (
-                                    <div key={material.id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${material.purchased ? 'bg-slate-950 border-slate-800 opacity-60' : 'bg-slate-900 border-slate-800 shadow-none hover:shadow-none'}`}>
-                                        <div className="flex items-center gap-4">
+                                    <div key={material.id} className={`group relative flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${material.purchased ? 'bg-black/30 border-white/5 opacity-60' : 'bg-gradient-to-br from-white/[0.05] to-white/[0.01] border-white/10 backdrop-blur-md hover:border-white/20 hover:shadow-lg hover:shadow-black/10'}`}>
+                                        <div className="flex items-center gap-5">
                                             <button
                                                 onClick={() => togglePurchased(material)}
-                                                className={`w-6 h-6 rounded border flex items-center justify-center transition-colors ${material.purchased ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-600 hover:border-emerald-500'}`}
+                                                className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${material.purchased ? 'bg-emerald-500 border-emerald-500 text-white scale-90' : 'border-slate-500 text-transparent hover:border-emerald-400 hover:text-emerald-500/50'}`}
                                             >
-                                                {material.purchased && <Check size={14} />}
+                                                <Check size={16} strokeWidth={3} />
                                             </button>
                                             <div>
-                                                <h3 className={`font-bold text-slate-100 ${material.purchased ? 'line-through text-slate-500' : ''}`}>{material.name}</h3>
-                                                <p className="text-sm text-slate-500">
-                                                    {material.quantity && <span className="mr-2 border-r border-slate-600 pr-2">{material.quantity}</span>}
+                                                <h3 className={`font-bold text-lg text-white mb-0.5 transition-all ${material.purchased ? 'line-through text-slate-500' : ''}`}>{material.name}</h3>
+                                                <div className="flex items-center gap-3 text-sm text-slate-400 font-medium">
+                                                    {material.quantity && <span className="bg-white/5 px-2 py-0.5 rounded text-white">{material.quantity}</span>}
                                                     {(material.price ?? 0) > 0 && (
-                                                        <span className="flex items-center gap-2">
+                                                        <span className="flex items-center gap-2 text-emerald-400">
                                                             ${material.price!.toFixed(2)}
-                                                            <BsBadge amount={material.price!} />
+                                                            <BsBadge amount={material.price!} className="text-[10px] py-0 px-1.5" />
                                                         </span>
                                                     )}
-                                                </p>
-                                                {material.notes && <p className="text-xs text-slate-400 mt-1 italic">{material.notes}</p>}
+                                                </div>
+                                                {material.notes && (
+                                                    <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500 italic">
+                                                        <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                                                        {material.notes}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => material.id && handleDelete(material.id)}
-                                            className="p-2 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                                            className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                            title="Eliminar"
                                         >
                                             <Trash size={18} />
                                         </button>

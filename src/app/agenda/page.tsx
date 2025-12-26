@@ -119,7 +119,7 @@ export default function AgendaPage() {
     const calendarDays = [];
     // Empty cells
     for (let i = 0; i < firstDay; i++) {
-        calendarDays.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-950/50 border border-slate-800"></div>);
+        calendarDays.push(<div key={`empty-${i}`} className="min-h-[6rem] md:min-h-[8rem] bg-black/20 border-r border-b border-white/5 last:border-r-0"></div>);
     }
     // Days
     for (let day = 1; day <= daysInMonth; day++) {
@@ -131,57 +131,59 @@ export default function AgendaPage() {
             <div
                 key={day}
                 onClick={() => handleDayClick(day)}
-                className={`h-24 md:h-32 border border-slate-800 p-2 relative group hover:bg-slate-950 transition-colors cursor-pointer ${isToday ? 'bg-blue-50/30' : 'bg-slate-900'}`}
+                className={`min-h-[6rem] md:min-h-[8rem] p-2 relative group transition-all cursor-pointer border-b border-r border-white/5 last:border-r-0 hover:bg-white/[0.03] flex flex-col`}
             >
-                <span className={`text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full ${isToday ? 'bg-blue-600 text-white' : 'text-slate-300'}`}>
-                    {day}
-                </span>
+                <div className="flex justify-between items-start mb-1">
+                    <span className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-lg transition-all ${isToday ? 'bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 font-bold scale-110' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                        {day}
+                    </span>
+                    <button className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-pink-400 transition-all p-1 hover:bg-white/5 rounded-md">
+                        <Plus size={14} />
+                    </button>
+                </div>
 
-                <div className="mt-1 space-y-1 overflow-y-auto max-h-[calc(100%-2rem)]">
+                <div className="flex-1 space-y-1.5 overflow-y-auto custom-scrollbar">
                     {dayEvents.map(event => (
                         <div
                             key={event.id}
                             onClick={(e) => handleEventClick(event, e)}
-                            className={`text-xs p-1 rounded border truncate flex justify-between items-center group/event
-                                ${event.type === 'delivery' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' :
-                                    event.type === 'meeting' ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-slate-800 border-slate-700 text-slate-400'}
+                            className={`text-[10px] md:text-xs p-1.5 rounded-lg border backdrop-blur-sm truncate flex justify-between items-center group/event transition-all hover:scale-[1.02] hover:shadow-lg shadow-black/10 cursor-pointer
+                                ${event.type === 'delivery' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:border-emerald-500/40' :
+                                    event.type === 'meeting' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 hover:border-blue-500/40' : 'bg-slate-700/30 border-slate-600/30 text-slate-400 hover:border-slate-500/50'}
                             `}
                         >
-                            <span>{event.title}</span>
-                            <button onClick={() => event.id && handleDeleteEvent(event.id)} className="opacity-0 group-hover/event:opacity-100 hover:text-red-600">
-                                <Trash size={10} />
-                            </button>
+                            <span className="truncate font-medium">{event.title}</span>
                         </div>
                     ))}
                 </div>
-
-                <button className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-600 transition-opacity">
-                    <Plus size={16} />
-                </button>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 h-[calc(100vh-6rem)] flex flex-col">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6 flex flex-col h-full bg-slate-950 pb-6"> {/* Ensure full height context if needed */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                        <CalendarIcon className="text-blue-600" /> Agenda
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/20">
+                            <CalendarIcon className="w-6 h-6 text-white" />
+                        </div>
+                        Agenda
                     </h1>
-                    <p className="text-slate-500 text-sm">Organiza entregas y eventos</p>
+                    <p className="text-slate-400 text-sm mt-1 ml-13">Organiza entregas y eventos</p>
                 </div>
-                <div className="flex items-center gap-4 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-none">
-                    <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-950 rounded-lg text-slate-400"><ChevronLeft size={20} /></button>
-                    <span className="font-semibold text-slate-100 w-32 text-center select-none">{MONTH_NAMES[month]} {year}</span>
-                    <button onClick={handleNextMonth} className="p-2 hover:bg-slate-950 rounded-lg text-slate-400"><ChevronRight size={20} /></button>
+
+                <div className="flex items-center gap-4 bg-gradient-to-br from-white/[0.05] to-white/[0.01] backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 shadow-lg shadow-black/10">
+                    <button onClick={handlePrevMonth} className="p-2.5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all active:scale-95"><ChevronLeft size={20} /></button>
+                    <span className="font-bold text-lg text-white w-40 text-center select-none tracking-wide">{MONTH_NAMES[month]} {year}</span>
+                    <button onClick={handleNextMonth} className="p-2.5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all active:scale-95"><ChevronRight size={20} /></button>
                 </div>
             </div>
 
-            <div className="flex-1 bg-slate-900 rounded-2xl border border-slate-800 shadow-none overflow-hidden flex flex-col">
-                <div className="grid grid-cols-7 border-b border-slate-800 bg-slate-950">
+            <div className="flex-1 bg-gradient-to-br from-white/[0.03] to-white/[0.005] backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-black/20 overflow-hidden flex flex-col">
+                <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.02]">
                     {DAYS_OF_WEEK.map(day => (
-                        <div key={day} className="py-3 text-center text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                        <div key={day} className="py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">
                             {day}
                         </div>
                     ))}
@@ -193,37 +195,46 @@ export default function AgendaPage() {
 
             {/* Event Details Modal */}
             {selectedEvent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-slate-900 rounded-2xl w-full max-w-sm shadow-2xl animate-in zoom-in-95 p-6 space-y-6">
-                        <div className="flex justify-between items-start">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl w-full max-w-sm border border-white/10 shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200 p-8 space-y-6 relative overflow-hidden">
+                        {/* Background Splashes */}
+                        <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none
+                            ${selectedEvent.type === 'delivery' ? 'bg-emerald-500' : selectedEvent.type === 'meeting' ? 'bg-blue-500' : 'bg-slate-500'}`} />
+
+                        <div className="flex justify-between items-start relative z-10">
                             <div>
-                                <h3 className="font-bold text-lg text-slate-100">{selectedEvent.title}</h3>
-                                <div className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium mt-2
+                                <h3 className="font-bold text-xl text-white leading-tight">{selectedEvent.title}</h3>
+                                <div className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider mt-3
                                     ${selectedEvent.type === 'delivery' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                                         selectedEvent.type === 'meeting' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                            'bg-slate-700 text-slate-300'}`}>
+                                            'bg-slate-700/50 text-slate-300 border border-slate-600/50'}`}>
                                     {selectedEvent.type === 'delivery' ? 'Entrega' : selectedEvent.type === 'meeting' ? 'Cita' : 'Evento'}
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedEvent(null)}><X className="text-slate-400 hover:text-slate-400" /></button>
+                            <button onClick={() => setSelectedEvent(null)} className="p-2 -mr-2 -mt-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"><X size={20} /></button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6 relative z-10">
                             <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fecha</label>
-                                <p className="text-slate-300 font-medium">{selectedEvent.date}</p>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Fecha</label>
+                                <p className="text-slate-200 font-medium text-lg flex items-center gap-2">
+                                    <CalendarIcon size={16} className="text-slate-400" />
+                                    {selectedEvent.date}
+                                </p>
                             </div>
 
                             {selectedEvent.id?.startsWith('apt-') || selectedEvent.id?.startsWith('del-') ? (
                                 <div className="pt-2">
                                     <a
                                         href={`/pedidos?id=${selectedEvent.id.substring(4)}`}
-                                        className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-bold transition-colors"
+                                        className="group w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-0.5"
                                     >
-                                        Ver Pedido
+                                        <span>Ver Detalle del Pedido</span>
+                                        <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                     </a>
-                                    <p className="text-xs text-center text-slate-500 mt-2">
-                                        Este evento está vinculado a un pedido
+                                    <p className="text-xs text-center text-slate-500 mt-3 flex items-center justify-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                        Evento sincronizado automáticamente
                                     </p>
                                 </div>
                             ) : (
@@ -233,8 +244,9 @@ export default function AgendaPage() {
                                             if (selectedEvent.id) handleDeleteEvent(selectedEvent.id);
                                             setSelectedEvent(null);
                                         }}
-                                        className="block w-full text-center bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 py-2 rounded-xl font-bold transition-colors"
+                                        className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 py-3.5 rounded-xl font-bold transition-all hover:border-red-500/30"
                                     >
+                                        <Trash size={18} />
                                         Eliminar Evento
                                     </button>
                                 </div>
@@ -246,47 +258,56 @@ export default function AgendaPage() {
 
             {/* Create Event Modal */}
             {showModal && !selectedEvent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-slate-900 rounded-2xl w-full max-w-sm shadow-2xl animate-in zoom-in-95 p-6 space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="font-bold text-lg text-slate-100">Nuevo Evento</h3>
-                            <button onClick={() => setShowModal(false)}><X className="text-slate-400 hover:text-slate-400" /></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl w-full max-w-sm border border-white/10 shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200 p-8 space-y-6">
+                        <div className="flex justify-between items-center pb-4 border-b border-white/10">
+                            <h3 className="font-bold text-xl text-white">Nuevo Evento</h3>
+                            <button onClick={() => setShowModal(false)} className="p-2 -mr-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"><X size={20} /></button>
                         </div>
-                        <p className="text-sm text-slate-500">Fecha: {selectedDate}</p>
 
-                        <form onSubmit={handleSaveEvent} className="space-y-4">
+                        <div className="bg-white/5 rounded-xl p-3 flex items-center gap-3 border border-white/5">
+                            <div className="p-2 bg-white/5 rounded-lg text-slate-300">
+                                <CalendarIcon size={18} />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Fecha Seleccionada</p>
+                                <p className="text-white font-medium">{selectedDate}</p>
+                            </div>
+                        </div>
+
+                        <form onSubmit={handleSaveEvent} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-300">Título</label>
+                                <label className="text-sm font-semibold text-slate-300 ml-1">Título del Evento</label>
                                 <input
                                     autoFocus
                                     type="text"
-                                    className="w-full px-4 py-2 rounded-xl border border-slate-700 outline-none focus:ring-2 focus:ring-blue-500 bg-slate-950 text-white placeholder-slate-500"
-                                    placeholder="Ej. Entrega Pedido #123"
+                                    className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 outline-none focus:border-pink-500/50 focus:ring-4 focus:ring-pink-500/10 text-white placeholder-slate-500 transition-all font-medium"
+                                    placeholder="Ej. Comprar materiales..."
                                     value={newEventTitle}
                                     onChange={e => setNewEventTitle(e.target.value)}
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-300">Tipo</label>
-                                <div className="flex gap-2">
+                                <label className="text-sm font-semibold text-slate-300 ml-1">Tipo de Evento</label>
+                                <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setNewEventType('delivery')}
-                                        className={`flex-1 py-2 rounded-lg text-sm font-medium border ${newEventType === 'delivery' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'border-slate-700 text-slate-400'}`}
+                                        className={`py-3 rounded-xl text-sm font-bold border transition-all ${newEventType === 'delivery' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10' : 'bg-black/20 border-white/5 text-slate-400 hover:bg-white/5'}`}
                                     >
                                         Entrega
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setNewEventType('meeting')}
-                                        className={`flex-1 py-2 rounded-lg text-sm font-medium border ${newEventType === 'meeting' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-slate-700 text-slate-400'}`}
+                                        className={`py-3 rounded-xl text-sm font-bold border transition-all ${newEventType === 'meeting' ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 shadow-lg shadow-blue-500/10' : 'bg-black/20 border-white/5 text-slate-400 hover:bg-white/5'}`}
                                     >
                                         Cita
                                     </button>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-bold">Guardar</button>
+                            <button type="submit" className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-pink-600/20 hover:shadow-pink-600/40 hover:-translate-y-0.5 transition-all">Guardar Evento</button>
                         </form>
                     </div>
                 </div>

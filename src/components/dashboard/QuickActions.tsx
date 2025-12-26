@@ -70,15 +70,15 @@ export default function QuickActions() {
 
 function ActionCard({ href, icon: Icon, label, colorClass, bgClass, borderClass }: any) {
     return (
-        <Link href={href} className={`group relative p-4 rounded-3xl border border-white/5 transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${bgClass} ${borderClass} overflow-hidden`}>
+        <Link href={href} className={`group relative p-4 rounded-3xl border border-white/10 transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${bgClass} ${borderClass} overflow-hidden backdrop-blur-md hover:shadow-lg hover:shadow-black/20`}>
             {/* Glossy overlay */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.07] to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
             <div className="flex flex-col items-center justify-center gap-4 text-center relative z-10">
-                <div className={`p-4 rounded-2xl bg-slate-950/30 border border-white/5 shadow-2xl ${colorClass} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`p-4 rounded-2xl bg-black/20 border border-white/10 shadow-lg ${colorClass} group-hover:scale-110 transition-transform duration-300 group-hover:bg-black/30`}>
                     <Icon size={28} />
                 </div>
-                <span className="font-semibold text-slate-200 text-sm tracking-wide group-hover:text-white">{label}</span>
+                <span className="font-semibold text-slate-200 text-sm tracking-wide group-hover:text-white transition-colors">{label}</span>
             </div>
         </Link>
     )

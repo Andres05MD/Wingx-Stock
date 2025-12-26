@@ -161,124 +161,160 @@ export default function PedidosPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                        <ClipboardList className="text-blue-600" /> Gestión de Pedidos
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                            <ClipboardList className="w-6 h-6 text-white" />
+                        </div>
+                        Gestión de Pedidos
                     </h1>
-                    <p className="text-slate-500 text-sm">Controla el flujo de trabajo</p>
+                    <p className="text-slate-400 text-sm mt-1 ml-13">Controla el flujo de trabajo y estados</p>
                 </div>
                 <Link
                     href="/pedidos/nuevo"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-lg shadow-blue-600/20"
+                    className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:scale-105"
                 >
-                    <Plus size={20} /> Nuevo Pedido
+                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+                    <span>Nuevo Pedido</span>
                 </Link>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-lg shadow-black/10 flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                         type="text"
                         placeholder="Buscar por cliente o prenda..."
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-none bg-slate-950 text-white placeholder-slate-500"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="relative w-full md:w-48">
-                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <div className="relative w-full md:w-64">
+                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-none bg-slate-950 appearance-none cursor-pointer text-white placeholder-slate-500"
+                        className="w-full pl-12 pr-10 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all appearance-none cursor-pointer text-white placeholder-slate-500"
                     >
-                        <option value="All">Todos</option>
-                        <option value="Sin Comenzar">Sin Comenzar</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Entregado">Entregado</option>
-                        <option value="Finalizado">Finalizado</option>
+                        <option value="All" className="bg-slate-900">Todos los Estados</option>
+                        <option value="Sin Comenzar" className="bg-slate-900">Sin Comenzar</option>
+                        <option value="Pendiente" className="bg-slate-900">Pendiente</option>
+                        <option value="En Proceso" className="bg-slate-900">En Proceso</option>
+                        <option value="Entregado" className="bg-slate-900">Entregado</option>
+                        <option value="Finalizado" className="bg-slate-900">Finalizado</option>
                     </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
                 </div>
             </div>
 
             {/* Grid of Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                    <div className="col-span-full p-8 text-center text-slate-400">Cargando pedidos...</div>
+                    <div className="col-span-full p-12 text-center text-slate-400">
+                        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        Cargando pedidos...
+                    </div>
                 ) : filteredOrders.length === 0 ? (
-                    <div className="col-span-full p-8 text-center text-slate-400">
-                        {searchTerm || filterStatus !== 'All' ? 'No se encontraron resultados.' : 'No hay pedidos activos.'}
+                    <div className="col-span-full p-12 text-center">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <ClipboardList className="w-8 h-8 text-slate-600" />
+                        </div>
+                        <p className="text-slate-400 font-medium text-lg">No se encontraron pedidos</p>
                     </div>
                 ) : (
                     filteredOrders.map((order) => {
                         const balance = (order.price || 0) - (order.paidAmount || 0);
 
                         return (
-                            <div key={order.id} className={`bg-slate-900 p-5 rounded-xl shadow-none hover:shadow-none transition-all ${getStatusColor(order.status)}`}>
-                                <div className="flex justify-between items-start mb-3">
-                                    <h3 className="font-bold text-slate-100 text-lg">{order.clientName}</h3>
-                                    <div className="flex gap-1">
-                                        <Link href={`/pedidos/${order.id}/editar`} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-900/50 rounded transition-colors">
-                                            <Edit size={16} />
-                                        </Link>
-                                        <button
-                                            onClick={() => order.id && handleDelete(order.id)}
-                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-900/50 rounded transition-colors"
-                                        >
-                                            <Trash size={16} />
-                                        </button>
-                                    </div>
-                                </div>
+                            <div key={order.id} className={`group relative bg-gradient-to-br from-white/[0.05] to-white/[0.01] backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-xl hover:shadow-black/20 hover:-translate-y-1 ${getStatusColor(order.status).replace('bg-', 'data-bg-')}`}>
+                                {/* Status Indicator Strip */}
+                                <div className={`absolute left-0 top-0 bottom-0 w-1 ${getStatusColor(order.status).split(' ')[2].replace('border-l-4', '').replace('border-', 'bg-')}`}></div>
 
-                                <div className="space-y-3 mb-4">
-                                    <div>
-                                        <p className="text-sm font-medium text-slate-300">{order.garmentName}</p>
-                                        <p className="text-xs text-slate-500">Talla: {order.size}</p>
-                                    </div>
-
-                                    <div className="flex justify-between items-end">
-                                        <div className="text-sm">
-                                            <p className="text-slate-500">Total: <span className="font-semibold text-slate-300">${order.price.toFixed(2)}</span></p>
-                                            <p className="text-slate-500">Abonado: <span className="font-semibold text-slate-300">${order.paidAmount.toFixed(2)}</span></p>
+                                <div className="p-5 pl-7 space-y-4">
+                                    {/* Header */}
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-bold text-white text-lg leading-tight">{order.clientName}</h3>
+                                            <p className="text-sm text-slate-400 mt-1">{order.garmentName}</p>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-xs uppercase font-bold text-slate-400 mb-1">Saldo</p>
-                                            <div className="flex flex-col items-end gap-1">
-                                                <p className={`font-bold ${balance > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Link href={`/pedidos/${order.id}/editar`} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-blue-400 transition-all">
+                                                <Edit size={16} />
+                                            </Link>
+                                            <button
+                                                onClick={() => order.id && handleDelete(order.id)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-red-400 transition-all"
+                                            >
+                                                <Trash size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Size Badge */}
+                                    <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-slate-300">
+                                        Talla: <span className="font-bold ml-1 text-white">{order.size}</span>
+                                    </div>
+
+                                    {/* Financials */}
+                                    <div className="grid grid-cols-2 gap-4 py-3 border-t border-white/5 border-b">
+                                        <div>
+                                            <p className="text-xs text-slate-500 uppercase tracking-wider">Total</p>
+                                            <p className="font-mono font-bold text-white">${order.price.toFixed(2)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-500 uppercase tracking-wider">Abonado</p>
+                                            <p className="font-mono font-bold text-blue-300">${order.paidAmount.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Balance & Actions */}
+                                    <div className="flex items-end justify-between">
+                                        <div>
+                                            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Saldo</p>
+                                            <div className="flex flex-col items-start gap-1">
+                                                <p className={`font-mono font-bold text-xl ${balance > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                                                     {balance > 0 ? `$${balance.toFixed(2)}` : 'Pagado'}
                                                 </p>
                                                 {balance > 0 && (
-                                                    <BsBadge amount={balance} className="bg-rose-500/10 text-rose-300 border-rose-500/20" />
-                                                )}
-                                                {balance > 0 && (
-                                                    <button
-                                                        onClick={() => order.id && handlePayRemaining(order)}
-                                                        className="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded transition-colors"
-                                                    >
-                                                        Registrar Pago
-                                                    </button>
+                                                    <BsBadge amount={balance} className="text-[10px] bg-red-500/10 text-red-300 border-red-500/20" />
                                                 )}
                                             </div>
                                         </div>
+
+                                        {balance > 0 && (
+                                            <button
+                                                onClick={() => order.id && handlePayRemaining(order)}
+                                                className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 text-emerald-400 text-xs font-semibold transition-all"
+                                            >
+                                                Registrar Pago
+                                            </button>
+                                        )}
                                     </div>
 
-                                    <div className="pt-3 border-t border-slate-800/50">
-                                        <select
-                                            value={order.status}
-                                            onChange={(e) => order.id && handleStatusChange(order.id, e.target.value)}
-                                            className={`w-full py-1.5 px-3 rounded-lg text-sm font-medium outline-none cursor-pointer transition-colors ${getBadgeColor(order.status)}`}
-                                        >
-                                            <option value="Sin Comenzar">Sin Comenzar</option>
-                                            <option value="Pendiente">Pendiente</option>
-                                            <option value="En Proceso">En Proceso</option>
-                                            <option value="Entregado">Entregado</option>
-                                            <option value="Finalizado">Finalizado</option>
-                                        </select>
+                                    {/* Status Selector */}
+                                    <div className="pt-2">
+                                        <div className="relative">
+                                            <select
+                                                value={order.status}
+                                                onChange={(e) => order.id && handleStatusChange(order.id, e.target.value)}
+                                                className={`w-full py-2 px-3 pl-8 rounded-xl text-sm font-semibold outline-none cursor-pointer appearance-none transition-all ${getBadgeColor(order.status)} hover:brightness-110`}
+                                            >
+                                                <option value="Sin Comenzar" className="bg-slate-900 text-slate-300">Sin Comenzar</option>
+                                                <option value="Pendiente" className="bg-slate-900 text-yellow-300">Pendiente</option>
+                                                <option value="En Proceso" className="bg-slate-900 text-emerald-300">En Proceso</option>
+                                                <option value="Entregado" className="bg-slate-900 text-red-300">Entregado</option>
+                                                <option value="Finalizado" className="bg-slate-900 text-blue-300">Finalizado</option>
+                                            </select>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <div className={`w-2 h-2 rounded-full ${getStatusColor(order.status).split(' ')[2].replace('border-l-4', '').replace('border-', 'bg-').replace('/50', '')}`}></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
