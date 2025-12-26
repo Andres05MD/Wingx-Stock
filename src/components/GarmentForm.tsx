@@ -344,9 +344,13 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <div className="text-right">
-                                                <p className="font-mono font-bold text-cyan-400">${material.cost.toFixed(2)}</p>
-                                                {material.cost > 0 && (
-                                                    <BsBadge amount={material.cost} className="text-[9px] mt-1" />
+                                                {material.cost > 0 ? (
+                                                    <>
+                                                        <p className="font-mono font-bold text-cyan-400">${material.cost.toFixed(2)}</p>
+                                                        <BsBadge amount={material.cost} className="text-[9px] mt-1" />
+                                                    </>
+                                                ) : (
+                                                    <p className="text-sm text-slate-500 italic">Sin costo</p>
                                                 )}
                                             </div>
                                             <button
