@@ -16,6 +16,7 @@ const ExchangeRateContext = createContext<ExchangeRateContextType>({} as Exchang
 // Configuración de caché
 const CACHE_KEY = 'wingx_exchange_rate_cache';
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hora
+const DEFAULT_RATE = 50; // Tasa de respaldo en caso de fallo total
 
 interface CachedRate {
     rate: number;
@@ -23,7 +24,7 @@ interface CachedRate {
 }
 
 export const ExchangeRateProvider = ({ children }: { children: React.ReactNode }) => {
-    const [rate, setRate] = useState<number>(0);
+    const [rate, setRate] = useState<number>(DEFAULT_RATE); // Usar tasa por defecto inicialmente
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -63,15 +64,28 @@ export const ExchangeRateProvider = ({ children }: { children: React.ReactNode }
                 throw new Error("Invalid data format");
             }
         } catch (err) {
-            console.error("Error fetching exchange rate:", err);
-            setError("No se pudo obtener la tasa BCV");
+            // Solo mostrar warning, no error (es esperado que falle a veces)
+            console.warn("⚠️ No se pudo obtener tasa de cambio actualizada:", err instanceof Error ? err.message : 'Error desconocido');
 
             // 4. Fallback: Intentar usar última tasa conocida aunque esté expirada
             const cached = localStorage.getItem(CACHE_KEY);
             if (cached) {
-                const { rate: cachedRate }: CachedRate = JSON.parse(cached);
-                setRate(cachedRate);
-                console.warn("Usando tasa de cambio en caché (posiblemente desactualizada)");
+                try {
+                    const { rate: cachedRate }: CachedRate = JSON.parse(cached);
+                    setRate(cachedRate);
+                    setError("Usando tasa en caché");
+                    console.warn("📦 Usando tasa de cambio en caché (puede estar desactualizada)");
+                } catch {
+                    // Si falla parsear caché, usar tasa por defecto
+                    setRate(DEFAULT_RATE);
+                    setError("Usando tasa por defecto");
+                    console.warn(`💱 Usando tasa de respaldo: ${DEFAULT_RATE} Bs/$`);
+                }
+            } else {
+                // No hay caché - usar tasa por defecto
+                setRate(DEFAULT_RATE);
+                setError("Usando tasa por defecto");
+                console.warn(`💱 No hay caché disponible. Usando tasa de respaldo: ${DEFAULT_RATE} Bs/$`);
             }
         } finally {
             setLoading(false);
