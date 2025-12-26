@@ -233,20 +233,75 @@ const GarmentForm = memo(function GarmentForm({ id }: GarmentFormProps) {
                                 </div>
                             </div>
 
-                            {/* Estimated Profit */}
-                            <div className="space-y-2">
+                            {/* Cost Breakdown - Desglose Completo */}
+                            <div className="md:col-span-2 space-y-2">
                                 <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 uppercase tracking-wider">
                                     <Package className="w-4 h-4 text-purple-400" />
-                                    Ganancia Estimada
+                                    Resumen de Costos
                                 </label>
-                                <div className={`px-4 py-4 rounded-xl border-2 ${estimatedProfit > 0
-                                    ? 'bg-emerald-500/10 border-emerald-500/30'
-                                    : 'bg-red-500/10 border-red-500/30'
-                                    }`}>
-                                    <p className={`text-lg font-bold font-mono ${estimatedProfit > 0 ? 'text-emerald-400' : 'text-red-400'
+                                <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-2xl border border-white/10 p-6 space-y-4">
+                                    {/* Precio de Venta */}
+                                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                                        <span className="text-slate-400 font-medium">Precio de Venta</span>
+                                        <span className="text-white font-mono font-bold text-lg">${(formData.price || 0).toFixed(2)}</span>
+                                    </div>
+
+                                    {/* Costos */}
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Costos:</p>
+
+                                        {/* Materiales */}
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-slate-400">• Materiales ({formData.materials?.length || 0})</span>
+                                            <span className="text-cyan-400 font-mono">-${totalMaterialsCost.toFixed(2)}</span>
+                                        </div>
+
+                                        {/* Mano de Obra */}
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-slate-400">• Mano de Obra</span>
+                                            <span className="text-amber-400 font-mono">-${(formData.laborCost || 0).toFixed(2)}</span>
+                                        </div>
+
+                                        {/* Transporte */}
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-slate-400">• Transporte</span>
+                                            <span className="text-blue-400 font-mono">-${(formData.transportCost || 0).toFixed(2)}</span>
+                                        </div>
+
+                                        {/* Total Costos */}
+                                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                                            <span className="text-slate-300 font-semibold">Total Costos</span>
+                                            <span className="text-red-400 font-mono font-bold">-${totalCost.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Ganancia Final */}
+                                    <div className={`flex items-center justify-between p-4 rounded-xl border-2 mt-4 ${estimatedProfit > 0
+                                            ? 'bg-emerald-500/10 border-emerald-500/30'
+                                            : 'bg-red-500/10 border-red-500/30'
                                         }`}>
-                                        ${estimatedProfit.toFixed(2)}
-                                    </p>
+                                        <span className="text-white font-bold text-lg">Ganancia Estimada</span>
+                                        <div className="text-right">
+                                            <p className={`text-2xl font-bold font-mono ${estimatedProfit > 0 ? 'text-emerald-400' : 'text-red-400'
+                                                }`}>
+                                                ${estimatedProfit.toFixed(2)}
+                                            </p>
+                                            {estimatedProfit > 0 && (
+                                                <BsBadge amount={estimatedProfit} className="text-xs mt-1" />
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Margen de Ganancia */}
+                                    {(formData.price || 0) > 0 && (
+                                        <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                                            <span className="text-slate-400 text-sm">Margen de Ganancia</span>
+                                            <span className={`font-mono font-bold ${estimatedProfit > 0 ? 'text-emerald-400' : 'text-red-400'
+                                                }`}>
+                                                {((estimatedProfit / (formData.price || 1)) * 100).toFixed(1)}%
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
