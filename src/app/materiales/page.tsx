@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Plus, Search, Trash, ShoppingCart, Check, X, DollarSign, Clock } from 'lucide-react';
+import { Plus, Search, Trash, ShoppingCart, Check, X, DollarSign, Clock, Save } from 'lucide-react';
 import { getMaterials, saveMaterial, updateMaterial, deleteMaterial, Material } from '@/services/storage';
 import Swal from 'sweetalert2';
 import { useExchangeRate } from "@/context/ExchangeRateContext";
@@ -216,38 +216,107 @@ export default function MaterialesPage() {
 
             {/* Form */}
             {showForm && (
-                <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-none animate-in slide-in-from-top-4 fade-in duration-200">
-                    <h2 className="text-lg font-bold text-slate-100 mb-4">Nuevo Material</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-sm font-semibold text-slate-300">Nombre</label>
-                                <input type="text" name="name" required placeholder="Ej. Tela de Seda" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
+                <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20 animate-in slide-in-from-top-4 fade-in duration-300">
+                    <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <Plus className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl font-bold text-white">Nuevo Material</h2>
+                            <p className="text-sm text-slate-400 mt-0.5">Agrega un material a tu lista de compras</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Name */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Nombre del Material
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    required
+                                    placeholder="Ej. Tela de Seda, Botones, Cierre..."
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white placeholder-slate-500 text-lg font-medium"
+                                />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-semibold text-slate-300">Cantidad</label>
-                                <input type="text" name="quantity" placeholder="Ej. 2 metros" value={formData.quantity} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
+
+                            {/* Quantity */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Cantidad
+                                </label>
+                                <input
+                                    type="text"
+                                    name="quantity"
+                                    placeholder="Ej. 2 metros, 10 unidades..."
+                                    value={formData.quantity}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all text-white placeholder-slate-500 text-lg"
+                                />
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-sm font-semibold text-slate-300">Precio Estimado ($)</label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Price */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                                    Precio Estimado
+                                </label>
                                 <div className="relative">
-                                    <input type="number" name="price" step="0.01" value={formData.price === 0 ? '' : formData.price} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500 pr-24" />
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">$</span>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        step="0.01"
+                                        value={formData.price === 0 ? '' : formData.price}
+                                        onChange={handleInputChange}
+                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
+                                    />
                                     {formData.price && formData.price > 0 && (
-                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                                            <BsBadge amount={Number(formData.price)} prefix="Bs" />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <BsBadge amount={Number(formData.price)} className="text-xs" />
                                         </div>
                                     )}
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-semibold text-slate-300">Notas</label>
-                                <input type="text" name="notes" placeholder="Ej. Comprar en Parisina" value={formData.notes} onChange={handleInputChange} className="w-full px-4 py-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-950 text-white placeholder-slate-500" />
+
+                            {/* Notes */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Notas / Tienda
+                                </label>
+                                <input
+                                    type="text"
+                                    name="notes"
+                                    placeholder="Ej. Comprar en Parisina, Color azul..."
+                                    value={formData.notes}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-purple-500/50 focus:bg-black/40 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all text-white placeholder-slate-500 text-lg"
+                                />
                             </div>
                         </div>
-                        <div className="flex justify-end pt-2">
-                            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all">Guardar</button>
+
+                        <div className="flex items-center justify-between pt-4">
+                            <button
+                                type="button"
+                                onClick={() => setShowForm(false)}
+                                className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold transition-all text-sm"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                className="group px-8 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 flex items-center gap-2 text-sm"
+                            >
+                                <Save className="w-4 h-4" />
+                                Guardar Material
+                            </button>
                         </div>
                     </form>
                 </div>
