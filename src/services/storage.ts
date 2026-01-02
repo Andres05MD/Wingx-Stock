@@ -78,6 +78,15 @@ export interface Material { // For shopping list
     createdAt?: string;
 }
 
+export interface Supply {
+    id?: string;
+    name: string;
+    quantity: number;
+    unit: string;
+    ownerId?: string;
+    updatedAt?: string;
+}
+
 export interface UserProfile {
     uid: string;
     email: string;
@@ -249,6 +258,54 @@ export const updateStockItem = async (id: string, data: Partial<StockItem>) => {
 
 export const deleteStockItem = async (id: string) => {
     return deleteDoc(doc(db, "stock", id));
+};
+
+export const updateStockByGarmentId = async (garmentId: string, quantityChange: number, userId: string) => {
+    const q = query(
+        collection(db, "stock"),
+        where("garmentId", "==", garmentId),
+        where("ownerId", "==", userId)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        // Update first matching item
+        const stockDoc = querySnapshot.docs[0];
+        const currentQty = stockDoc.data().quantity || 0;
+        const newQty = currentQty + quantityChange;
+
+        // Prevent negative stock if desired, or allow it
+        if (newQty >= 0) {
+            await updateDoc(doc(db, "stock", stockDoc.id), { quantity: newQty });
+            return true;
+        }
+    }
+    return false;
+};
+
+// Supplies (Inventario de Insumos)
+export const saveSupply = async (supply: Supply) => {
+    const userId = getUserId();
+    if (!userId) throw new Error("User not authenticated");
+
+    // Check if supply already exists to update quantity instead
+    const q = query(collection(db, "supplies"), where("name", "==", supply.name), where("ownerId", "==", userId));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+        const docRef = snapshot.docs[0];
+        const currentQty = docRef.data().quantity || 0;
+        return updateDoc(doc(db, "supplies", docRef.id), {
+            quantity: currentQty + supply.quantity,
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    return addDoc(collection(db, "supplies"), { ...supply, ownerId: userId, updatedAt: new Date().toISOString() });
+};
+
+export const getSupplies = async (role?: string, userId?: string): Promise<Supply[]> => {
+    return await getCollectionData("supplies", role, userId) as Supply[];
 };
 
 // Events / Agenda

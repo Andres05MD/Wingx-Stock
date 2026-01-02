@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Search, Trash, ShoppingCart, Check, X, DollarSign, Clock, Save } from 'lucide-react';
-import { getMaterials, saveMaterial, updateMaterial, deleteMaterial, Material } from '@/services/storage';
+import { getMaterials, saveMaterial, updateMaterial, deleteMaterial, Material, saveSupply } from '@/services/storage';
 import Swal from 'sweetalert2';
 import { useExchangeRate } from "@/context/ExchangeRateContext";
 import { useAuth } from "@/context/AuthContext";
@@ -140,8 +140,54 @@ export default function MaterialesPage() {
                 return a.purchased ? 1 : -1;
             });
             setMaterials(updatedMaterials);
+
+            // AUTOMATION: If marking as purchased, ask to add to supplies inventory
+            if (newStatus) {
+                addToSupplies(material);
+            }
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    async function addToSupplies(material: Material) {
+        const result = await Swal.fire({
+            title: '¿Agregar al Inventario de Insumos?',
+            text: `¿Quieres guardar "${material.name}" en tu stock de insumos para usarlo en futuros pedidos?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, guardar en insumos',
+            cancelButtonText: 'No, solo marcar comprado',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#64748b'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                // Try to parse quantity from string like "2 metros" -> 2
+                const qtyString = material.quantity ? material.quantity.toString() : "1";
+                const qtyMatch = qtyString.match(/(\d+(\.\d+)?)/);
+                const quantity = qtyMatch ? parseFloat(qtyMatch[0]) : 1;
+
+                await saveSupply({
+                    name: material.name,
+                    quantity: quantity,
+                    unit: qtyString.replace(/[\d.]/g, '').trim() || 'unidad',
+                });
+
+                Swal.fire({
+                    title: '¡Guardado!',
+                    text: 'El insumo ha sido añadido a tu inventario.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            } catch (error) {
+                console.error("Error saving supply:", error);
+                Swal.fire('Error', 'No se pudo guardar en insumos', 'error');
+            }
         }
     }
 

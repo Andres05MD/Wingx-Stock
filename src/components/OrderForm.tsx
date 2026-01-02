@@ -2,9 +2,9 @@
 
 import { useState, useEffect, memo } from "react";
 import { useRouter } from "next/navigation";
-import { Order, Garment, GarmentMaterial, getGarments, saveOrder, updateOrder, getOrder, saveMaterial, getMaterials, getClients, Client } from "@/services/storage";
+import { Order, Garment, GarmentMaterial, getGarments, saveOrder, updateOrder, getOrder, saveMaterial, getMaterials, getClients, Client, saveGarment, updateStockByGarmentId, getStockItems } from "@/services/storage";
 import Swal from "sweetalert2";
-import { Plus, Trash, ArrowLeft, Save, Calendar as CalendarIcon, DollarSign, User, Shirt, Ruler, Package, Sparkles, CheckCircle2 } from "lucide-react";
+import { Plus, Trash, ArrowLeft, Save, Calendar as CalendarIcon, DollarSign, User, Shirt, Ruler, Package, Sparkles, CheckCircle2, Scissors, Truck } from "lucide-react";
 import Link from "next/link";
 import { useExchangeRate } from "@/context/ExchangeRateContext";
 import { useAuth } from "@/context/AuthContext";
@@ -42,6 +42,14 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
     const [price, setPrice] = useState<number | string>(0);
     const [paidAmount, setPaidAmount] = useState<number | string>(0);
     const [status, setStatus] = useState("Sin Comenzar");
+
+    // New Garment Extra Fields
+    const [laborCost, setLaborCost] = useState<number | string>(0);
+    const [transportCost, setTransportCost] = useState<number | string>(0);
+
+    // Stock Automation
+    const [useStock, setUseStock] = useState(false);
+    const [stockAvailable, setStockAvailable] = useState(0);
 
     // Materials logic
     const [selectedGarmentMaterials, setSelectedGarmentMaterials] = useState<GarmentMaterial[]>([]);
@@ -107,8 +115,26 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
             setGarmentName("");
             setPrice(0);
             setSelectedGarmentMaterials([]);
+            setUseStock(false);
+            setStockAvailable(0);
         }
     };
+
+    // Check stock when garment changes
+    useEffect(() => {
+        const checkStock = async () => {
+            if (garmentId && user?.uid && !isNewGarment) {
+                const stockItems = await getStockItems(role || undefined, user.uid);
+                const item = stockItems.find(i => i.garmentId === garmentId && i.quantity > 0);
+                setStockAvailable(item ? item.quantity : 0);
+                if (!item) setUseStock(false);
+            } else {
+                setStockAvailable(0);
+                setUseStock(false);
+            }
+        };
+        checkStock();
+    }, [garmentId, user, role, isNewGarment]);
 
     const addCustomMaterial = () => {
         if (!newMatName || !newMatQtty) {
@@ -158,11 +184,42 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                 await updateOrder(id, orderData);
                 Swal.fire("Éxito", "Pedido actualizado", "success");
             } else {
+                if (isNewGarment) {
+                    // Create and save the new garment
+                    const newGarment: any = {
+                        name: garmentName,
+                        size: size,
+                        price: Number(price),
+                        laborCost: Number(laborCost),
+                        transportCost: Number(transportCost),
+                        materials: customMaterials,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const garmentRef = await saveGarment(newGarment);
+                    orderData.garmentId = garmentRef.id;
+                }
+
+                // STOCK AUTOMATION: Deduct from inventory if toggle is on
+                if (useStock && garmentId && user?.uid) {
+                    const success = await updateStockByGarmentId(garmentId, -1, user.uid);
+                    if (success) {
+                        orderData.status = "Entregado"; // Auto-complete if stock is used? Optional, but makes sense.
+                        // Or maybe just "Finalizado" immediately. Let's stick to current user selection or force "Entregado"
+                        Swal.fire({ title: 'Stock Actualizado', text: 'Se descontó 1 unidad del inventario', icon: 'info', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+                    } else {
+                        Swal.fire("Advertencia", "No se pudo descontar del stock (quizás ya no queden)", "warning");
+                    }
+                }
+
                 await saveOrder(orderData);
 
-                const materialsToSave = garmentId ? selectedGarmentMaterials : customMaterials;
-                if (materialsToSave.length > 0) {
-                    await addMaterialsToShoppingList(materialsToSave, `${garmentName} - ${clientName}`);
+                // Add materials to shopping list ONLY if NOT using stock
+                if (!useStock) {
+                    const materialsToSave = garmentId ? selectedGarmentMaterials : customMaterials;
+                    if (materialsToSave.length > 0) {
+                        await addMaterialsToShoppingList(materialsToSave, `${garmentName} - ${clientName}`);
+                    }
                 }
 
                 Swal.fire("Éxito", "Pedido creado", "success");
@@ -293,22 +350,71 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                     Prenda
                                 </label>
                                 {isNewGarment ? (
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            required
-                                            placeholder="Nombre de la prenda"
-                                            value={garmentName}
-                                            onChange={(e) => setGarmentName(e.target.value)}
-                                            className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all text-white placeholder-slate-500 pr-24"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => { setIsNewGarment(false); setGarmentName(""); setGarmentId(""); }}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-white/10 hover:bg-white/20 text-slate-300 px-3 py-2 rounded-lg transition-colors"
-                                        >
-                                            Cancelar
-                                        </button>
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="Nombre de la prenda"
+                                                value={garmentName}
+                                                onChange={(e) => setGarmentName(e.target.value)}
+                                                className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-4 focus:ring-cyan-500/10 outline-none transition-all text-white placeholder-slate-500 pr-24"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsNewGarment(false);
+                                                    setGarmentName("");
+                                                    setGarmentId("");
+                                                    setLaborCost(0);
+                                                    setTransportCost(0);
+                                                    setCustomMaterials([]);
+                                                }}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-white/10 hover:bg-white/20 text-slate-300 px-3 py-2 rounded-lg transition-colors"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {/* Labor Cost */}
+                                            <div className="space-y-2">
+                                                <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                                    <Scissors className="w-3.5 h-3.5 text-amber-400" />
+                                                    Mano de Obra
+                                                </label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        value={laborCost === 0 ? '' : laborCost}
+                                                        onChange={(e) => setLaborCost(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+                                                        className="w-full pl-8 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-amber-500/50 focus:bg-black/40 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all text-white font-mono placeholder-slate-600"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Transport Cost */}
+                                            <div className="space-y-2">
+                                                <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                                    <Truck className="w-3.5 h-3.5 text-blue-400" />
+                                                    Transporte
+                                                </label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        value={transportCost === 0 ? '' : transportCost}
+                                                        onChange={(e) => setTransportCost(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+                                                        className="w-full pl-8 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 focus:border-blue-500/50 focus:bg-black/40 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-white font-mono placeholder-slate-600"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="relative">
@@ -320,6 +426,10 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                                     setIsNewGarment(true);
                                                     setGarmentId("");
                                                     setGarmentName("");
+                                                    setPrice(0);
+                                                    setLaborCost(0);
+                                                    setTransportCost(0);
+                                                    setCustomMaterials([]);
                                                 } else {
                                                     handleGarmentSelect(e);
                                                 }
@@ -330,7 +440,7 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                             {garments.map((g) => (
                                                 <option key={g.id} value={g.id}>{g.name} (${g.price})</option>
                                             ))}
-                                            <option value="new_garment_trigger" className="text-cyan-400 font-semibold">+ Otra / Nueva Prenda</option>
+                                            <option value="new_garment_trigger" className="text-cyan-400 font-semibold">+ Nueva Prenda (Automatizar)</option>
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-slate-400">
@@ -340,6 +450,40 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Stock Toggle */}
+                            {!isNewGarment && stockAvailable > 0 && (
+                                <div className="space-y-2 col-span-1 md:col-span-2">
+                                    <div
+                                        onClick={() => setUseStock(!useStock)}
+                                        className={`cursor-pointer border rounded-xl p-4 flex items-center justify-between transition-all duration-300 ${useStock
+                                            ? 'bg-emerald-500/10 border-emerald-500/50 shadow-lg shadow-emerald-500/10'
+                                            : 'bg-black/20 border-white/5 hover:bg-white/5'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${useStock ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                                                <Package className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className={`font-bold ${useStock ? 'text-white' : 'text-slate-400'}`}>Tomar del Inventario</p>
+                                                <p className="text-xs text-slate-500">
+                                                    Disponibles: <span className="text-white font-mono font-bold">{stockAvailable}</span> unidad(es)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className={`w-12 h-6 rounded-full p-1 transition-colors ${useStock ? 'bg-emerald-500' : 'bg-slate-600'}`}>
+                                            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${useStock ? 'translate-x-6' : 'translate-x-0'}`} />
+                                        </div>
+                                    </div>
+                                    {useStock && (
+                                        <p className="text-xs text-emerald-400 pl-2 animate-in fade-in slide-in-from-top-1">
+                                            ✓ Se descontará del stock y no se generará lista de compras.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Size */}
                             <div className="space-y-2">
@@ -392,124 +536,6 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                             <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Dates Card */}
-                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20">
-                        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                                <CalendarIcon className="w-5 h-5 text-white" />
-                            </div>
-                            <h2 className="text-xl font-bold text-white">Fechas Importantes</h2>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Appointment Date */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                                    Fecha de Cita
-                                </label>
-                                <DatePicker
-                                    selected={appointmentDate}
-                                    onChange={(date: Date | null) => setAppointmentDate(date)}
-                                    dateFormat="dd/MM/yyyy"
-                                    locale="es"
-                                    placeholderText="Seleccionar fecha..."
-                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-orange-500/50 focus:bg-black/40 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all text-white placeholder-slate-500 cursor-pointer"
-                                    wrapperClassName="w-full"
-                                />
-                            </div>
-
-                            {/* Delivery Date */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                                    Fecha de Entrega
-                                </label>
-                                <DatePicker
-                                    selected={deliveryDate}
-                                    onChange={(date: Date | null) => setDeliveryDate(date)}
-                                    dateFormat="dd/MM/yyyy"
-                                    locale="es"
-                                    placeholderText="Seleccionar fecha..."
-                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-green-500/50 focus:bg-black/40 focus:ring-4 focus:ring-green-500/10 outline-none transition-all text-white placeholder-slate-500 cursor-pointer"
-                                    wrapperClassName="w-full"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Payment Card */}
-                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20">
-                        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center">
-                                <DollarSign className="w-5 h-5 text-white" />
-                            </div>
-                            <h2 className="text-xl font-bold text-white">Información de Pago</h2>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Total Price */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                                    Precio Total
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">$</span>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        required
-                                        value={price === 0 ? '' : price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
-                                    />
-                                    {Number(price) > 0 && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                            <BsBadge amount={Number(price)} className="text-xs" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Paid Amount */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                                    Monto Abonado
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">$</span>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        required
-                                        value={paidAmount === 0 ? '' : paidAmount}
-                                        onChange={(e) => setPaidAmount(e.target.value)}
-                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
-                                    />
-                                    {Number(paidAmount) > 0 && (
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                            <BsBadge amount={Number(paidAmount)} className="text-xs" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Balance */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                                    Saldo Pendiente
-                                </label>
-                                <div className={`px-4 py-4 rounded-xl border-2 ${balance > 0
-                                    ? 'bg-red-500/10 border-red-500/30'
-                                    : 'bg-emerald-500/10 border-emerald-500/30'
-                                    }`}>
-                                    <p className={`text-lg font-bold font-mono ${balance > 0 ? 'text-red-400' : 'text-emerald-400'
-                                        }`}>
-                                        {balance > 0 ? `$${balance.toFixed(2)}` : 'Pagado'}
-                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -636,6 +662,124 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                             )}
                         </div>
                     )}
+
+                    {/* Dates Card */}
+                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20">
+                        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                                <CalendarIcon className="w-5 h-5 text-white" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Fechas Importantes</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Appointment Date */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Fecha de Cita
+                                </label>
+                                <DatePicker
+                                    selected={appointmentDate}
+                                    onChange={(date: Date | null) => setAppointmentDate(date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    locale="es"
+                                    placeholderText="Seleccionar fecha..."
+                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-orange-500/50 focus:bg-black/40 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all text-white placeholder-slate-500 cursor-pointer"
+                                    wrapperClassName="w-full"
+                                />
+                            </div>
+
+                            {/* Delivery Date */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Fecha de Entrega
+                                </label>
+                                <DatePicker
+                                    selected={deliveryDate}
+                                    onChange={(date: Date | null) => setDeliveryDate(date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    locale="es"
+                                    placeholderText="Seleccionar fecha..."
+                                    className="w-full px-4 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-green-500/50 focus:bg-black/40 focus:ring-4 focus:ring-green-500/10 outline-none transition-all text-white placeholder-slate-500 cursor-pointer"
+                                    wrapperClassName="w-full"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Card */}
+                    <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl shadow-black/20">
+                        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-white" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Información de Pago</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Total Price */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Precio Total
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">$</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={price === 0 ? '' : price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
+                                    />
+                                    {Number(price) > 0 && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <BsBadge amount={Number(price)} className="text-xs" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Paid Amount */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Monto Abonado
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">$</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={paidAmount === 0 ? '' : paidAmount}
+                                        onChange={(e) => setPaidAmount(e.target.value)}
+                                        className="w-full pl-10 pr-28 py-4 rounded-xl bg-black/30 border border-white/10 focus:border-emerald-500/50 focus:bg-black/40 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-white font-mono text-lg"
+                                    />
+                                    {Number(paidAmount) > 0 && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <BsBadge amount={Number(paidAmount)} className="text-xs" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Balance */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                                    Saldo Pendiente
+                                </label>
+                                <div className={`px-4 py-4 rounded-xl border-2 ${balance > 0
+                                    ? 'bg-red-500/10 border-red-500/30'
+                                    : 'bg-emerald-500/10 border-emerald-500/30'
+                                    }`}>
+                                    <p className={`text-lg font-bold font-mono ${balance > 0 ? 'text-red-400' : 'text-emerald-400'
+                                        }`}>
+                                        {balance > 0 ? `$${balance.toFixed(2)}` : 'Pagado'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Action Buttons */}
                     <div className="flex items-center justify-between gap-4 pt-4">
