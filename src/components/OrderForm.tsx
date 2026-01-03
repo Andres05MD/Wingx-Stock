@@ -376,7 +376,7 @@ const OrderForm = memo(function OrderForm({ id }: OrderFormProps) {
                                             </button>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4">
                                             {/* Labor Cost */}
                                             <div className="space-y-2">
                                                 <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
