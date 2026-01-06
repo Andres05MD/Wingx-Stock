@@ -8,29 +8,42 @@ Estructura de Directorios (Source):
 /src
 ├── /app                 # Rutas de la aplicación (App Router)
 │   ├── /agenda          # Calendario de pedidos
-│   ├── /clientes        # Gestión de base de datos de clientes
-│   ├── /inventario      # Inventario de productos terminados (Stock)
+│   ├── /clientes        # Gestión de clientes (Lista y Detalle)
+│   ├── /inventario      # Inventario de productos terminados
 │   ├── /login           # Pantalla de inicio de sesión
 │   ├── /materiales      # Gestión de insumos y materiales
-│   ├── /pedidos         # Gestión de pedidos de clientes
-│   ├── /prendas         # Catálogo de prendas y costos
-│   ├── layout.tsx       # Layout principal (Shell con Sidebar)
+│   ├── /pedidos         # Gestión de pedidos (Lista, Crear, Detalle)
+│   ├── /prendas         # Catálogo de prendas (Lista, Crear, Detalle)
+│   ├── layout.tsx       # Layout principal
 │   └── page.tsx         # Dashboard principal
 ├── /components          # Componentes de interfaz
-│   ├── AdminDashboard   # Panel de estadísticas administrativas
+│   ├── /dashboard       # Componentes específicos del dashboard
+│   │   ├── OrdersList   # Lista de pedidos recientes
+│   │   ├── QuickActions # Botones de acción rápida
+│   │   └── StatsGrid    # Grid de estadísticas
+│   ├── AdminDashboard   # Contenedor del dashboard
+│   ├── BsBadge          # Badge para montos en Bolívares
 │   ├── ClientForm       # Formulario de clientes
+│   ├── ErrorBoundary    # Manejo de errores de UI
 │   ├── ExchangeRate...  # Widget de tasa de cambio
 │   ├── GarmentForm      # Formulario de prendas
+│   ├── LoadingSpinner   # Indicador de carga
 │   ├── OrderForm        # Formulario de pedidos
-│   ├── Shell            # Contenedor principal
+│   ├── Shell            # Layout principal con Sidebar
 │   └── Sidebar          # Navegación lateral
-├── /context             # Estados globales
-│   ├── AuthContext      # Manejo de sesión y usuarios
-│   └── ExchangeRate...  # Manejo de tasa de cambio (Bs/$)
+├── /context             # Estados globales (React Context)
+│   ├── AuthContext      # Autenticación
+│   ├── ClientsContext   # Estado de clientes
+│   ├── ExchangeRate...  # Tasa de cambio
+│   ├── GarmentsContext  # Estado de prendas
+│   ├── MaterialsContext # Estado de materiales
+│   └── OrdersContext    # Estado de pedidos
+├── /hooks               # Hooks personalizados
+│   └── useDebounce      # Hook para búsqueda optimizada
 ├── /lib                 # Configuraciones externas
 │   └── firebase.ts      # Inicialización de Firebase
 └── /services            # Lógica de negocio
-    └── storage.ts       # Servicios de persistencia de datos
+    └── storage.ts       # Servicios de Storage (Firebase)
 
 Módulos Funcionales:
 
@@ -42,20 +55,21 @@ Módulos Funcionales:
 2. Dashboard Principal:
    - Estadísticas clave (Usuarios, Pedidos, Productos).
    - Acciones rápidas.
-   - Resumen de actividad reciente.
+   - Lista de pedidos recientes.
 
 3. Gestión de Prendas:
    - Catálogo de productos que se pueden fabricar.
    - Definición de costos y precios de venta.
+   - Creación y edición de prendas.
 
 4. Gestión de Clientes:
-   - Registro de información de contacto.
-   - Historial de interacciones.
+   - Registro y edición de clientes.
+   - Historial y detalles de cliente.
 
 5. Gestión de Pedidos:
-   - Ciclo de vida del pedido (Sin comenzar, Pendiente, En proceso, Entregado).
+   - Creación y seguimiento de pedidos.
+   - Ciclo de vida (Sin comenzar, Pendiente, En proceso, Entregado).
    - Asociación con clientes y prendas.
-   - Visualización visual por estados (Colores).
 
 6. Inventario (Stock):
    - Control de productos listos para entrega inmediata.
@@ -65,8 +79,7 @@ Módulos Funcionales:
    - Gestión de compras pendientes.
 
 8. Agenda:
-   - Visualización de calendario.
-   - Fechas de entrega y organización temporal.
+   - Visualización de calendario de pedidos.
 
 9. Configuración Global:
    - Tasa de cambio global para cálculos de precios (Bs.).

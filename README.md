@@ -1,86 +1,103 @@
 # Wingx - Sistema de Gestión para Talleres de Costura
 
-Wingx es una aplicación web moderna diseñada para optimizar la gestión de pequeños y medianos talleres de costura y confección. Permite a los usuarios administrar pedidos, inventario, clientes y agenda de manera eficiente, con soporte para múltiples usuarios y roles de administración.
+![Next.js](https://img.shields.io/badge/Next.js_15+-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
-## Características Principales
+Wingx es una aplicación web moderna y robusta diseñada para transformar la gestión de talleres de costura y confección. Ofrece una solución integral para controlar inventario, pedidos, clientes y producción, todo envuelto en una interfaz de usuario premium y responsiva.
 
-### 🔐 Autenticación y Roles
-*   **Inicio de Sesión Seguro**: Soporte para correo/contraseña.
-*   **Separación de Datos por Usuario**: Cada taller (Owner) tiene su propia base de datos aislada.
-*   **Sistema de Roles**: Distinción entre usuarios estándar y administradores.
-*   **Gestión de Perfiles**: Registro de nombres y correos.
+## 🚀 Características Principales
 
-### 👥 Panel de Usuario (Taller)
-*   **Gestión de Pedidos**: Creación, seguimiento de estado (Pendiente, En Proceso, Finalizado, Entregado) y control de pagos.
-*   **Base de Datos de Prendas**: Cálculo de costos detallado y precios sugeridos.
-*   **Inventario (Stock)**: Control de prendas listas para venta inmediata.
-*   **Agenda Digital**: Calendario interactivo para organizar entregas.
-*   **Gestión de Materiales**: Lista de compras necesarias para producción.
-*   **Clientes**: Base de datos de clientes con historial de compras.
-*   **Tasa de Cambio Global**: Widget integrado para conversión automática de precios (Bs/$) en toda la aplicación.
-*   **Resumen Diario**: Generación automática de reportes para compartir.
+### � Experiencia de Usuario (UX/UI)
+*   **Diseño Premium**: Interfaz moderna con efectos "Glassmorphism", animaciones suaves y una paleta de colores cuidada.
+*   **Responsividad Total**: Optimizado para funcionar perfectamente en móviles, tablets y escritorios.
+*   **Modo Oscuro/Claro**: Adaptable a las preferencias del usuario.
 
-### 🛡️ Panel de Administrador
-*   **Dashboard Exclusivo**: Vista global de todo el sistema.
-*   **Estadísticas en Tiempo Real**: Ingresos totales, número de pedidos, usuarios activos y métricas de rendimiento.
-*   **Top Products**: Visualización de las prendas más vendidas en todo el sistema.
-*   **Gestión de Usuarios**:
-    *   Listado completo de usuarios.
-    *   Visualización de ingresos generados por usuario.
-    *   **Restablecimiento de Contraseña**: Envío de correos de recuperación directamente desde el panel.
+### 🏭 Gestión Integral del Taller
+*   **Gestión de Pedidos**: Ciclo de vida completo (Sin comenzar, Pendiente, En proceso, Entregado) con control visual de estados.
+*   **Catálogo de Prendas**: Definición detallada de productos, incluyendo cálculo de costos, materiales y precios sugeridos.
+*   **Inventario (Stock)**: Control en tiempo real de productos terminados disponibles para entrega inmediata.
+*   **Gestión de Materiales y Compras**: Listas automáticas de insumos necesarios para la producción.
+*   **Base de Datos de Clientes**: Historial de pedidos, información de contacto y métricas por cliente.
+*   **Agenda Interactiva**: Calendario visual para organizar entregas y plazos de producción.
 
-## Tecnologías Utilizadas
+### � Seguridad y Multiusuario
+*   **Autenticación Robusta**: Sistema de login seguro.
+*   **Aislamiento de Datos**: Arquitectura diseñada para que cada taller ("Owner") gestione sus datos de forma privada e independiente.
+*   **Roles y Permisos**: Distinción clara entre usuarios estándar y administradores.
 
-*   **Frontend**: [Next.js 15+](https://nextjs.org/) (App Router), React 19, TypeScript.
-*   **Estilos**: [Tailwind CSS 4](https://tailwindcss.com/) con diseño responsivo y moderno (Glassmorphism).
-*   **Base de Datos y Auth**: [Firebase](https://firebase.google.com/) (Firestore, Authentication).
-*   **Utilidades**:
-    *   [Date-fns](https://date-fns.org/) para manejo de fechas.
-    *   [Lucide React](https://lucide.dev/) para iconos.
-    *   [SweetAlert2](https://sweetalert2.github.io/) para notificaciones y alertas.
+### 💰 Finanzas y Administración
+*   **Tasa de Cambio Global**: Widget inteligente para conversión de precios (Bs/USD) en tiempo real en toda la app.
+*   **Dashboard Administrativo**: Visión de pájaro con estadísticas clave, usuarios activos y métricas de rendimiento.
+*   **Reportes**: Generación de resúmenes de actividad.
 
-## Estructura del Proyecto
+## 🛠️ Stack Tecnológico
 
-```
+*   **Core**: [Next.js 15+](https://nextjs.org/) (App Router), React 19.
+*   **Lenguaje**: TypeScript para un código tipado y seguro.
+*   **Estilos**: [Tailwind CSS 4](https://tailwindcss.com/) con enfoque en diseño utility-first.
+*   **Backend & DB**: [Firebase](https://firebase.google.com/) (Firestore, Authentication, Storage).
+*   **UI Components**: Iconos por [Lucide React](https://lucide.dev/), notificaciones con [SweetAlert2](https://sweetalert2.github.io/).
+*   **Utilidades**: [Date-fns](https://date-fns.org/) para manipulación de fechas.
+
+## 📂 Estructura del Proyecto
+
+```bash
 /src
-├── /app                 # Rutas (App Router) y Layouts
-├── /components          # Componentes de UI (Formularios, Dashboards, Widgets)
-├── /context             # Estado Global (Auth, ExchangeRate)
-├── /lib                 # Configuración de Firebase y utilidades
+├── /app                 # Rutas de la aplicación (App Router)
+│   ├── /agenda          # Calendario de pedidos
+│   ├── /clientes        # Gestión de clientes
+│   ├── /inventario      # Inventario de Stock
+│   ├── /materiales      # Gestión de insumos
+│   ├── /pedidos         # Flujo de pedidos
+│   ├── /prendas         # Catálogo de prendas
+│   ├── layout.tsx       # Shell principal
+│   └── page.tsx         # Dashboard
+├── /components          # Biblioteca de componentes UI
+│   ├── /dashboard       # Widgets del dashboard
+│   ├── Shell            # Layout container
+│   ├── Sidebar          # Navegación
+│   └── ...              # Componentes reutilizables (Forms, Badges, etc.)
+├── /context             # Estados globales (Auth, Orders, Clients, etc.)
+├── /hooks               # Custom Hooks (useDebounce, etc.)
+├── /lib                 # Configuración de Firebase
 └── /services            # Lógica de negocio y persistencia
 ```
 
-## Configuración del Proyecto
+## 🏁 Instalación y configuración
 
-### Prerrequisitos
-*   Node.js 18+
-*   Cuenta de Firebase configurada.
-
-### Instalación
-
-1.  Clonar el repositorio:
+1.  **Clonar el repositorio**
     ```bash
     git clone https://github.com/tu-usuario/wingx.git
     cd wingx
     ```
 
-2.  Instalar dependencias:
+2.  **Instalar dependencias**
     ```bash
     npm install
-    # o
-    npm install --legacy-peer-deps
     ```
 
-3.  Configurar Variables de Entorno:
-    Crear un archivo `.env.local` con las credenciales de Firebase.
+3.  **Configurar Variables de Entorno**
+    Crea un archivo `.env.local` en la raíz del proyecto con tus credenciales de Firebase:
+    ```env
+    NEXT_PUBLIC_FIREBASE_API_KEY=...
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+    NEXT_PUBLIC_FIREBASE_APP_ID=...
+    ```
 
-4.  Ejecutar en desarrollo:
+4.  **Ejecutar el servidor de desarrollo**
     ```bash
     npm run dev
     ```
 
-5.  Abrir [http://localhost:3000](http://localhost:3000) en tu navegador.
+5.  **Abrir en el navegador**
+    Visita [http://localhost:3000](http://localhost:3000).
 
-## Despliegue
+## 🚢 Despliegue
 
-La aplicación está preparada para ser desplegada en [Vercel](https://vercel.com).
+La aplicación está optimizada para ser desplegada en [Vercel](https://vercel.com), la plataforma de los creadores de Next.js.
